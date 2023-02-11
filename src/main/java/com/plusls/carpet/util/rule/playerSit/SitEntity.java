@@ -1,7 +1,7 @@
 package com.plusls.carpet.util.rule.playerSit;
 
 public interface SitEntity {
-    boolean isSitEntity();
+    boolean pca$isSitEntity();
 
-    void setSitEntity(boolean sitEntity);
+    void pca$setSitEntity(boolean sitEntity);
 }

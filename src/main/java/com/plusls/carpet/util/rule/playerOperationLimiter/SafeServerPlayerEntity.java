@@ -1,13 +1,13 @@
 package com.plusls.carpet.util.rule.playerOperationLimiter;
 
 public interface SafeServerPlayerEntity {
-    int getInstaBreakCountPerTick();
+    int pca$getInstaBreakCountPerTick();
 
-    int getPlaceBlockCountPerTick();
+    int pca$getPlaceBlockCountPerTick();
 
-    void addInstaBreakCountPerTick();
+    void pca$addInstaBreakCountPerTick();
 
-    void addPlaceBlockCountPerTick();
+    void pca$addPlaceBlockCountPerTick();
 
-    boolean allowOperation();
+    boolean pca$allowOperation();
 }

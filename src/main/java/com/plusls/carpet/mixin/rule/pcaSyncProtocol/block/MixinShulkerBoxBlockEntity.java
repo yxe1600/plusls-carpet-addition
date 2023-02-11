@@ -1,28 +1,27 @@
 package com.plusls.carpet.mixin.rule.pcaSyncProtocol.block;
 
-import com.plusls.carpet.ModInfo;
-import com.plusls.carpet.PcaSettings;
+import com.plusls.carpet.PluslsCarpetAdditionReference;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.block.entity.ShulkerBoxBlockEntity;
-import net.minecraft.inventory.SidedInventory;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ShulkerBoxBlockEntity.class)
-public abstract class MixinShulkerBoxBlockEntity extends LootableContainerBlockEntity implements SidedInventory {
-
+public abstract class MixinShulkerBoxBlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer {
     protected MixinShulkerBoxBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
     }
 
     @Override
-    public void markDirty() {
-        super.markDirty();
-        if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
-            ModInfo.LOGGER.debug("update ShulkerBoxBlockEntity: {}", this.pos);
+    public void setChanged() {
+        super.setChanged();
+        if (PluslsCarpetAdditionSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
+            PluslsCarpetAdditionReference.getLogger().debug("update ShulkerBoxBlockEntity: {}", this.worldPosition);
         }
     }
 }

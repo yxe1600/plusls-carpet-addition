@@ -1,50 +1,49 @@
 package com.plusls.carpet.util.rule.dispenserFixIronGolem;
 
-import com.plusls.carpet.PcaSettings;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.util.dispenser.MyFallibleItemDispenserBehavior;
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.block.dispenser.DispenserBehavior;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPointer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 
 public class IronIngotDispenserBehavior extends MyFallibleItemDispenserBehavior {
-
-    public IronIngotDispenserBehavior(DispenserBehavior oldDispenserBehavior) {
+    public IronIngotDispenserBehavior(DispenseItemBehavior oldDispenserBehavior) {
         super(oldDispenserBehavior);
     }
 
     public static void init() {
         DispenserBlock.registerBehavior(Items.IRON_INGOT,
-                new IronIngotDispenserBehavior(DispenserBlock.BEHAVIORS.get(Items.IRON_INGOT)));
+                new IronIngotDispenserBehavior(DispenserBlock.DISPENSER_REGISTRY.get(Items.IRON_INGOT)));
     }
 
     @Override
-    public ItemStack dispenseSilently(BlockPointer pointer, ItemStack itemStack) {
-        if (!PcaSettings.dispenserFixIronGolem) {
+    public ItemStack dispenseSilently(BlockSource pointer, ItemStack itemStack) {
+        if (!PluslsCarpetAdditionSettings.dispenserFixIronGolem) {
             return itemStack;
         }
-        BlockPos faceBlockPos = pointer.getPos().offset(pointer.getBlockState().get(DispenserBlock.FACING));
+        BlockPos faceBlockPos = pointer.getPos().relative(pointer.getBlockState().getValue(DispenserBlock.FACING));
 
-        List<IronGolemEntity> ironGolemEntityList = pointer.getWorld().getEntitiesByClass(IronGolemEntity.class,
-                new Box(faceBlockPos), LivingEntity::isAlive);
+        List<IronGolem> ironGolemEntityList = pointer.getLevel().getEntitiesOfClass(IronGolem.class,
+                new AABB(faceBlockPos), LivingEntity::isAlive);
 
-        for (IronGolemEntity ironGolemEntity : ironGolemEntityList) {
+        for (IronGolem ironGolemEntity : ironGolemEntityList) {
             float oldHealth = ironGolemEntity.getHealth();
             ironGolemEntity.heal(25.0F);
             if (ironGolemEntity.getHealth() == oldHealth) {
                 continue;
             }
             float g = 1.0F + (ironGolemEntity.getRandom().nextFloat() - ironGolemEntity.getRandom().nextFloat()) * 0.2F;
-            ironGolemEntity.playSound(SoundEvents.ENTITY_IRON_GOLEM_REPAIR, 1.0F, g);
-            itemStack.decrement(1);
+            ironGolemEntity.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0F, g);
+            itemStack.shrink(1);
             setSuccess(true);
             return itemStack;
         }

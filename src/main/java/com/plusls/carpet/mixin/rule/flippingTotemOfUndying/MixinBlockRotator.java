@@ -2,15 +2,16 @@ package com.plusls.carpet.mixin.rule.flippingTotemOfUndying;
 
 import carpet.CarpetSettings;
 import carpet.helpers.BlockRotator;
-import com.plusls.carpet.PcaSettings;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.util.rule.flippingTotemOfUndying.FlipCooldown;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Items;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,42 +19,52 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BlockRotator.class)
 public class MixinBlockRotator {
-    private static boolean player_holds_totemOfUndying_mainhand(PlayerEntity player) {
-        return player.getMainHandStack().getItem() == Items.TOTEM_OF_UNDYING;
+    private static boolean pca$playerHoldsTotemOfUndyingMainHand(@NotNull Player player) {
+        return player.getMainHandItem().getItem() == Items.TOTEM_OF_UNDYING;
     }
 
-    @Inject(method = "flipBlockWithCactus", at = @At(value = "RETURN"), cancellable = true, remap = false)
-    private static void postFlipBlockWithCactus(BlockState state, World world, PlayerEntity player, Hand hand, BlockHitResult hit,
-                                                CallbackInfoReturnable<Boolean> cir) {
-
+    @Inject(
+            method = "flipBlockWithCactus",
+            at = @At(
+                    value = "RETURN"
+            ),
+            cancellable = true,
+            remap = false
+    )
+    private static void postFlipBlockWithCactus(BlockState state, Level level, Player player, InteractionHand hand, BlockHitResult hit, @NotNull CallbackInfoReturnable<Boolean> cir) {
         // 不知道为什么 同一 gt 内会收到 2 个包
         // it works
-        if (!cir.getReturnValue() && PcaSettings.flippingTotemOfUndying &&
-                world.getTime() != FlipCooldown.getCoolDown(player)) {
+        if (!cir.getReturnValue() && PluslsCarpetAdditionSettings.flippingTotemOfUndying &&
+                level.getGameTime() != FlipCooldown.getCoolDown(player)) {
             // 能修改世界且副手为空
-            if (!player.getAbilities().allowModifyWorld ||
-                    !player_holds_totemOfUndying_mainhand(player) ||
-                    !player.getOffHandStack().isEmpty()) {
+            if (!player.getAbilities().mayBuild ||
+                    !pca$playerHoldsTotemOfUndyingMainHand(player) ||
+                    !player.getOffhandItem().isEmpty()) {
                 return;
             }
             CarpetSettings.impendingFillSkipUpdates.set(true);
-            boolean ret = BlockRotator.flipBlock(state, world, player, hand, hit);
+            boolean ret = BlockRotator.flipBlock(state, level, player, hand, hit);
             CarpetSettings.impendingFillSkipUpdates.set(false);
             if (ret) {
-                FlipCooldown.setCoolDown(player, world.getTime());
+                FlipCooldown.setCoolDown(player, level.getGameTime());
             }
             cir.setReturnValue(ret);
         }
     }
 
-    @Inject(method = "flippinEligibility", at = @At(value = "RETURN"), cancellable = true, remap = false)
-    private static void postFlippinEligibility(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-
-        if (!cir.getReturnValue() && PcaSettings.flippingTotemOfUndying && (entity instanceof PlayerEntity player)) {
+    @Inject(
+            method = "flippinEligibility",
+            at = @At(
+                    value = "RETURN"
+            ),
+            cancellable = true,
+            remap = false
+    )
+    private static void postFlippinEligibility(Entity entity, @NotNull CallbackInfoReturnable<Boolean> cir) {
+        if (!cir.getReturnValue() && PluslsCarpetAdditionSettings.flippingTotemOfUndying && (entity instanceof Player player)) {
             // 副手不为空，主手为图腾
-            boolean ret = !player.getOffHandStack().isEmpty() && player_holds_totemOfUndying_mainhand(player);
+            boolean ret = !player.getOffhandItem().isEmpty() && pca$playerHoldsTotemOfUndyingMainHand(player);
             cir.setReturnValue(ret);
         }
     }
-
 }

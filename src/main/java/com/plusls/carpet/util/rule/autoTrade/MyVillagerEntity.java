@@ -1,7 +1,7 @@
 package com.plusls.carpet.util.rule.autoTrade;
 
-import net.minecraft.village.TradeOffer;
+import net.minecraft.world.item.trading.MerchantOffer;
 
 public interface MyVillagerEntity {
-    void tradeWithoutPlayer(TradeOffer offer);
+    void pca$tradeWithoutPlayer(MerchantOffer offer);
 }

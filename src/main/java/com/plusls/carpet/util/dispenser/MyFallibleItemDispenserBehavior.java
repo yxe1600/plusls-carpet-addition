@@ -1,42 +1,42 @@
 package com.plusls.carpet.util.dispenser;
 
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.block.dispenser.DispenserBehavior;
-import net.minecraft.block.dispenser.ItemDispenserBehavior;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPointer;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Position;
+import net.minecraft.core.BlockSource;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Position;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.DispenserBlock;
 
 public abstract class MyFallibleItemDispenserBehavior extends MyDispenserBehavior {
     private boolean success = false;
 
-    public MyFallibleItemDispenserBehavior(DispenserBehavior oldDispenserBehavior) {
+    public MyFallibleItemDispenserBehavior(DispenseItemBehavior oldDispenserBehavior) {
         super(oldDispenserBehavior);
     }
 
     @Override
-    public final ItemStack dispense(BlockPointer blockPointer, ItemStack itemStack) {
+    public final ItemStack dispense(BlockSource blockPointer, ItemStack itemStack) {
         setSuccess(false);
         ItemStack itemStack2 = this.dispenseSilently(blockPointer, itemStack);
         if (!isSuccess()) {
             return super.dispense(blockPointer, itemStack);
         }
         this.playSound(blockPointer);
-        this.spawnParticles(blockPointer, blockPointer.getBlockState().get(DispenserBlock.FACING));
+        this.spawnParticles(blockPointer, blockPointer.getBlockState().getValue(DispenserBlock.FACING));
         return itemStack2;
     }
 
-    public ItemStack dispenseSilently(BlockPointer pointer, ItemStack stack) {
-        Direction direction = pointer.getBlockState().get(DispenserBlock.FACING);
-        Position position = DispenserBlock.getOutputLocation(pointer);
+    public ItemStack dispenseSilently(BlockSource pointer, ItemStack stack) {
+        Direction direction = pointer.getBlockState().getValue(DispenserBlock.FACING);
+        Position position = DispenserBlock.getDispensePosition(pointer);
         ItemStack itemStack = stack.split(1);
-        ItemDispenserBehavior.spawnItem(pointer.getWorld(), itemStack, 6, direction, position);
+        DefaultDispenseItemBehavior.spawnItem(pointer.getLevel(), itemStack, 6, direction, position);
         return stack;
     }
 
-    protected void spawnParticles(BlockPointer pointer, Direction side) {
-        pointer.getWorld().syncWorldEvent(2000, pointer.getPos(), side.getId());
+    protected void spawnParticles(BlockSource pointer, Direction side) {
+        pointer.getLevel().levelEvent(2000, pointer.getPos(), side.get3DDataValue());
     }
 
     public boolean isSuccess() {
@@ -47,7 +47,7 @@ public abstract class MyFallibleItemDispenserBehavior extends MyDispenserBehavio
         this.success = success;
     }
 
-    protected void playSound(BlockPointer pointer) {
-        pointer.getWorld().syncWorldEvent(this.isSuccess() ? 1000 : 1001, pointer.getPos(), 0);
+    protected void playSound(BlockSource pointer) {
+        pointer.getLevel().levelEvent(this.isSuccess() ? 1000 : 1001, pointer.getPos(), 0);
     }
 }

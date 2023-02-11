@@ -1,17 +1,16 @@
 package com.plusls.carpet.mixin.rule.trackItemPickupByPlayer;
 
 import carpet.utils.Translations;
-import com.plusls.carpet.PcaMod;
-import com.plusls.carpet.PcaSettings;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.network.message.MessageType;
-import net.minecraft.text.Text;
-import net.minecraft.world.World;
+import com.plusls.carpet.PluslsCarpetAdditionExtension;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,42 +19,55 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntity.class)
 public abstract class MixinItemEntity extends Entity {
+    private boolean pca$pickuped = false;
+    private int pca$trackItemPickupByPlayerCooldown = 0;
 
-    private boolean pickuped = false;
-    private int trackItemPickupByPlayerCooldown = 0;
-
-    public MixinItemEntity(EntityType<?> type, World world) {
-        super(type, world);
+    public MixinItemEntity(EntityType<?> type, Level level) {
+        super(type, level);
     }
 
     @Shadow
     public abstract void tick();
 
     @Shadow
-    public abstract void setStack(ItemStack stack);
+    public abstract void setItem(ItemStack itemStack);
 
-    @Inject(method = "tick", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(
+            method = "tick",
+            at = @At(
+                    value = "HEAD"
+            ),
+            cancellable = true
+    )
     private void prevTick(CallbackInfo ci) {
-        if (!this.world.isClient() && PcaSettings.trackItemPickupByPlayer && pickuped) {
+        if (!this.level.isClientSide() && PluslsCarpetAdditionSettings.trackItemPickupByPlayer && pca$pickuped) {
             ci.cancel();
         }
     }
 
-    @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;insertStack(Lnet/minecraft/item/ItemStack;)Z", ordinal = 0), cancellable = true)
-    private void checkPickup(PlayerEntity player, CallbackInfo ci) {
-        if (!this.world.isClient() && PcaSettings.trackItemPickupByPlayer && PcaMod.server != null) {
-            Text text = Text.literal(String.format(Translations.tr("pca.message.pickup"), player.getName().getString(),
+    @Inject(
+            method = "playerTouch",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/player/Inventory;add(Lnet/minecraft/world/item/ItemStack;)Z",
+                    ordinal = 0
+            ),
+            cancellable = true
+    )
+    private void checkPickup(Player player, CallbackInfo ci) {
+        if (!this.level.isClientSide() && PluslsCarpetAdditionSettings.trackItemPickupByPlayer && PluslsCarpetAdditionExtension.getServer() != null) {
+            Component text = Component.literal(String.format(Translations.tr("pca.message.pickup"), player.getName().getString(),
                     this.getX(), this.getY(), this.getZ(),
-                    this.getVelocity().getX(), this.getVelocity().getY(), this.getVelocity().getZ()));
-            if (trackItemPickupByPlayerCooldown == 0) {
-                PcaMod.server.getPlayerManager().broadcast(text, true);
+                    this.getDeltaMovement().x(), this.getDeltaMovement().y(), this.getDeltaMovement().z()));
+            if (pca$trackItemPickupByPlayerCooldown == 0) {
+                PluslsCarpetAdditionExtension.getServer().getPlayerList().broadcastSystemMessage(text, true);
             }
-            trackItemPickupByPlayerCooldown = (trackItemPickupByPlayerCooldown + 1) % 100;
-            pickuped = true;
-            this.setStack(new ItemStack(Items.BARRIER));
+            pca$trackItemPickupByPlayerCooldown = (pca$trackItemPickupByPlayerCooldown + 1) % 100;
+            pca$pickuped = true;
+            this.setItem(new ItemStack(Items.BARRIER));
             this.setNoGravity(true);
-            this.noClip = true;
-            this.setVelocity(0, 0, 0);
+            this.noPhysics = true;
+            this.setDeltaMovement(0, 0, 0);
             ci.cancel();
         }
     }

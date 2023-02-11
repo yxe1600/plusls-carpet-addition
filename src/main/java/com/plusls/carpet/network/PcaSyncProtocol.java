@@ -2,31 +2,31 @@ package com.plusls.carpet.network;
 
 import carpet.CarpetServer;
 import carpet.patches.EntityPlayerMPFake;
-import com.plusls.carpet.ModInfo;
-import com.plusls.carpet.PcaMod;
-import com.plusls.carpet.PcaSettings;
+import com.plusls.carpet.PluslsCarpetAdditionExtension;
+import com.plusls.carpet.PluslsCarpetAdditionReference;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.BarrelBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.enums.ChestType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BarrelBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -39,73 +39,73 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
+@SuppressWarnings("removal")
 public class PcaSyncProtocol {
-
     public static final ReentrantLock lock = new ReentrantLock(true);
     public static final ReentrantLock pairLock = new ReentrantLock(true);
     // 发送包
-    private static final Identifier ENABLE_PCA_SYNC_PROTOCOL = ModInfo.id("enable_pca_sync_protocol");
-    private static final Identifier DISABLE_PCA_SYNC_PROTOCOL = ModInfo.id("disable_pca_sync_protocol");
-    private static final Identifier UPDATE_ENTITY = ModInfo.id("update_entity");
-    private static final Identifier UPDATE_BLOCK_ENTITY = ModInfo.id("update_block_entity");
+    private static final ResourceLocation ENABLE_PCA_SYNC_PROTOCOL = PluslsCarpetAdditionReference.identifier("enable_pca_sync_protocol");
+    private static final ResourceLocation DISABLE_PCA_SYNC_PROTOCOL = PluslsCarpetAdditionReference.identifier("disable_pca_sync_protocol");
+    private static final ResourceLocation UPDATE_ENTITY = PluslsCarpetAdditionReference.identifier("update_entity");
+    private static final ResourceLocation UPDATE_BLOCK_ENTITY = PluslsCarpetAdditionReference.identifier("update_block_entity");
     // 响应包
-    private static final Identifier SYNC_BLOCK_ENTITY = ModInfo.id("sync_block_entity");
-    private static final Identifier SYNC_ENTITY = ModInfo.id("sync_entity");
-    private static final Identifier CANCEL_SYNC_BLOCK_ENTITY = ModInfo.id("cancel_sync_block_entity");
-    private static final Identifier CANCEL_SYNC_ENTITY = ModInfo.id("cancel_sync_entity");
-    private static final Map<ServerPlayerEntity, Pair<Identifier, BlockPos>> playerWatchBlockPos = new HashMap<>();
-    private static final Map<ServerPlayerEntity, Pair<Identifier, Entity>> playerWatchEntity = new HashMap<>();
-    private static final Map<Pair<Identifier, BlockPos>, Set<ServerPlayerEntity>> blockPosWatchPlayerSet = new HashMap<>();
-    private static final Map<Pair<Identifier, Entity>, Set<ServerPlayerEntity>> entityWatchPlayerSet = new HashMap<>();
-    private static final MutablePair<Identifier, Entity> identifierEntityPair = new MutablePair<>();
-    private static final MutablePair<Identifier, BlockPos> identifierBlockPosPair = new MutablePair<>();
+    private static final ResourceLocation SYNC_BLOCK_ENTITY = PluslsCarpetAdditionReference.identifier("sync_block_entity");
+    private static final ResourceLocation SYNC_ENTITY = PluslsCarpetAdditionReference.identifier("sync_entity");
+    private static final ResourceLocation CANCEL_SYNC_BLOCK_ENTITY = PluslsCarpetAdditionReference.identifier("cancel_sync_block_entity");
+    private static final ResourceLocation CANCEL_SYNC_ENTITY = PluslsCarpetAdditionReference.identifier("cancel_sync_entity");
+    private static final Map<ServerPlayer, Pair<ResourceLocation, BlockPos>> playerWatchBlockPos = new HashMap<>();
+    private static final Map<ServerPlayer, Pair<ResourceLocation, Entity>> playerWatchEntity = new HashMap<>();
+    private static final Map<Pair<ResourceLocation, BlockPos>, Set<ServerPlayer>> blockPosWatchPlayerSet = new HashMap<>();
+    private static final Map<Pair<ResourceLocation, Entity>, Set<ServerPlayer>> entityWatchPlayerSet = new HashMap<>();
+    private static final MutablePair<ResourceLocation, Entity> identifierEntityPair = new MutablePair<>();
+    private static final MutablePair<ResourceLocation, BlockPos> identifierBlockPosPair = new MutablePair<>();
 
     // 通知客户端服务器已启用 PcaSyncProtocol
-    public static void enablePcaSyncProtocol(@NotNull ServerPlayerEntity player) {
+    public static void enablePcaSyncProtocol(@NotNull ServerPlayer player) {
         // 在这写如果是在 BC 端的情况下，ServerPlayNetworking.canSend 在这个时机调用会出现错误
-        ModInfo.LOGGER.debug("Try enablePcaSyncProtocol: {}", player.getName().getString());
+        PluslsCarpetAdditionReference.getLogger().debug("Try enablePcaSyncProtocol: {}", player.getName().getString());
         // bc 端比较奇怪，canSend 工作不正常
         // if (ServerPlayNetworking.canSend(player, ENABLE_PCA_SYNC_PROTOCOL)) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         ServerPlayNetworking.send(player, ENABLE_PCA_SYNC_PROTOCOL, buf);
-        ModInfo.LOGGER.debug("send enablePcaSyncProtocol to {}!", player.getName().getString());
+        PluslsCarpetAdditionReference.getLogger().debug("send enablePcaSyncProtocol to {}!", player.getName().getString());
         lock.lock();
         lock.unlock();
     }
 
     // 通知客户端服务器已停用 PcaSyncProtocol
-    public static void disablePcaSyncProtocol(@NotNull ServerPlayerEntity player) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+    public static void disablePcaSyncProtocol(@NotNull ServerPlayer player) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         ServerPlayNetworking.send(player, DISABLE_PCA_SYNC_PROTOCOL, buf);
-        ModInfo.LOGGER.debug("send disablePcaSyncProtocol to {}!", player.getName().getString());
+        PluslsCarpetAdditionReference.getLogger().debug("send disablePcaSyncProtocol to {}!", player.getName().getString());
     }
 
     // 通知客户端更新 Entity
     // 包内包含 World 的 Identifier, entityId, entity 的 nbt 数据
     // 传输 World 是为了通知客户端该 Entity 属于哪个 World
-    public static void updateEntity(@NotNull ServerPlayerEntity player, @NotNull Entity entity) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeIdentifier(entity.getEntityWorld().getRegistryKey().getValue());
+    public static void updateEntity(@NotNull ServerPlayer player, @NotNull Entity entity) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeResourceLocation(entity.getCommandSenderWorld().dimension().location());
         buf.writeInt(entity.getId());
-        buf.writeNbt(entity.writeNbt(new NbtCompound()));
+        buf.writeNbt(entity.saveWithoutId(new CompoundTag()));
         ServerPlayNetworking.send(player, UPDATE_ENTITY, buf);
     }
 
     // 通知客户端更新 BlockEntity
     // 包内包含 World 的 Identifier, pos, blockEntity 的 nbt 数据
     // 传输 World 是为了通知客户端该 BlockEntity 属于哪个世界
-    public static void updateBlockEntity(@NotNull ServerPlayerEntity player, @NotNull BlockEntity blockEntity) {
-        World world = blockEntity.getWorld();
+    public static void updateBlockEntity(@NotNull ServerPlayer player, @NotNull BlockEntity blockEntity) {
+        Level world = blockEntity.getLevel();
 
         // 在生成世界时可能会产生空指针
         if (world == null) {
             return;
         }
 
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        buf.writeIdentifier(world.getRegistryKey().getValue());
-        buf.writeBlockPos(blockEntity.getPos());
-        buf.writeNbt(blockEntity.createNbt());
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        buf.writeResourceLocation(world.dimension().location());
+        buf.writeBlockPos(blockEntity.getBlockPos());
+        buf.writeNbt(blockEntity.saveWithoutMetadata());
         ServerPlayNetworking.send(player, UPDATE_BLOCK_ENTITY, buf);
     }
 
@@ -118,69 +118,69 @@ public class PcaSyncProtocol {
         ServerPlayConnectionEvents.DISCONNECT.register(PcaSyncProtocol::onDisconnect);
     }
 
-    private static void onDisconnect(ServerPlayNetworkHandler serverPlayNetworkHandler, MinecraftServer minecraftServer) {
-        if (PcaSettings.pcaSyncProtocol) {
-            ModInfo.LOGGER.debug("onDisconnect remove: {}", serverPlayNetworkHandler.player.getName().getString());
+    private static void onDisconnect(ServerGamePacketListenerImpl serverPlayNetworkHandler, MinecraftServer minecraftServer) {
+        if (PluslsCarpetAdditionSettings.pcaSyncProtocol) {
+            PluslsCarpetAdditionReference.getLogger().debug("onDisconnect remove: {}", serverPlayNetworkHandler.player.getName().getString());
         }
     }
 
-    private static void onJoin(ServerPlayNetworkHandler serverPlayNetworkHandler, PacketSender packetSender, MinecraftServer minecraftServer) {
-        if (PcaSettings.pcaSyncProtocol) {
+    private static void onJoin(ServerGamePacketListenerImpl serverPlayNetworkHandler, PacketSender packetSender, MinecraftServer minecraftServer) {
+        if (PluslsCarpetAdditionSettings.pcaSyncProtocol) {
             enablePcaSyncProtocol(serverPlayNetworkHandler.player);
         }
     }
 
     // 客户端通知服务端取消 BlockEntity 同步
-    private static void cancelSyncBlockEntityHandler(MinecraftServer server, ServerPlayerEntity player,
-                                                     ServerPlayNetworkHandler handler, PacketByteBuf buf,
+    private static void cancelSyncBlockEntityHandler(MinecraftServer server, ServerPlayer player,
+                                                     ServerGamePacketListenerImpl handler, FriendlyByteBuf buf,
                                                      PacketSender responseSender) {
-        if (!PcaSettings.pcaSyncProtocol) {
+        if (!PluslsCarpetAdditionSettings.pcaSyncProtocol) {
             return;
         }
-        ModInfo.LOGGER.debug("{} cancel watch blockEntity.", player.getName().getString());
+        PluslsCarpetAdditionReference.getLogger().debug("{} cancel watch blockEntity.", player.getName().getString());
         PcaSyncProtocol.clearPlayerWatchBlock(player);
     }
 
     // 客户端通知服务端取消 Entity 同步
-    private static void cancelSyncEntityHandler(MinecraftServer server, ServerPlayerEntity player,
-                                                ServerPlayNetworkHandler handler, PacketByteBuf buf,
+    private static void cancelSyncEntityHandler(MinecraftServer server, ServerPlayer player,
+                                                ServerGamePacketListenerImpl handler, FriendlyByteBuf buf,
                                                 PacketSender responseSender) {
-        if (!PcaSettings.pcaSyncProtocol) {
+        if (!PluslsCarpetAdditionSettings.pcaSyncProtocol) {
             return;
         }
-        ModInfo.LOGGER.debug("{} cancel watch entity.", player.getName().getString());
+        PluslsCarpetAdditionReference.getLogger().debug("{} cancel watch entity.", player.getName().getString());
         PcaSyncProtocol.clearPlayerWatchEntity(player);
     }
 
     // 客户端请求同步 BlockEntity
     // 包内包含 pos
     // 由于正常的场景一般不会跨世界请求数据，因此包内并不包含 World，以玩家所在的 World 为准
-    private static void syncBlockEntityHandler(MinecraftServer server, ServerPlayerEntity player,
-                                               ServerPlayNetworkHandler handler, PacketByteBuf buf,
+    private static void syncBlockEntityHandler(MinecraftServer server, ServerPlayer player,
+                                               ServerGamePacketListenerImpl handler, FriendlyByteBuf buf,
                                                PacketSender responseSender) {
-        if (!PcaSettings.pcaSyncProtocol) {
+        if (!PluslsCarpetAdditionSettings.pcaSyncProtocol) {
             return;
         }
         BlockPos pos = buf.readBlockPos();
-        ServerWorld world = player.getWorld();
+        ServerLevel world = player.getLevel();
         BlockState blockState = world.getBlockState(pos);
         clearPlayerWatchData(player);
-        ModInfo.LOGGER.debug("{} watch blockpos {}: {}", player.getName().getString(), pos, blockState);
+        PluslsCarpetAdditionReference.getLogger().debug("{} watch blockpos {}: {}", player.getName().getString(), pos, blockState);
 
         BlockEntity blockEntityAdj = null;
         // 不是单个箱子则需要更新隔壁箱子
         if (blockState.getBlock() instanceof ChestBlock) {
-            if (blockState.get(ChestBlock.CHEST_TYPE) != ChestType.SINGLE) {
-                BlockPos posAdj = pos.offset(ChestBlock.getFacing(blockState));
+            if (blockState.getValue(ChestBlock.TYPE) != ChestType.SINGLE) {
+                BlockPos posAdj = pos.relative(ChestBlock.getConnectedDirection(blockState));
                 // The method in World now checks that the caller is from the same thread...
-                blockEntityAdj = world.getWorldChunk(posAdj).getBlockEntity(posAdj);
+                blockEntityAdj = world.getChunkAt(posAdj).getBlockEntity(posAdj);
             }
-        } else if (PcaMod.tisCarpetLoaded && blockState.isOf(Blocks.BARREL) && CarpetServer.settingsManager.getRule("largeBarrel").getBoolValue()) {
-            Direction directionOpposite = blockState.get(BarrelBlock.FACING).getOpposite();
-            BlockPos posAdj = pos.offset(directionOpposite);
+        } else if (PluslsCarpetAdditionReference.tisCarpetLoaded && blockState.is(Blocks.BARREL) && CarpetServer.settingsManager.getRule("largeBarrel").getBoolValue()) {
+            Direction directionOpposite = blockState.getValue(BarrelBlock.FACING).getOpposite();
+            BlockPos posAdj = pos.relative(directionOpposite);
             BlockState blockStateAdj = world.getBlockState(posAdj);
-            if (blockStateAdj.isOf(Blocks.BARREL) && blockStateAdj.get(BarrelBlock.FACING) == directionOpposite) {
-                blockEntityAdj = world.getWorldChunk(posAdj).getBlockEntity(posAdj);
+            if (blockStateAdj.is(Blocks.BARREL) && blockStateAdj.getValue(BarrelBlock.FACING) == directionOpposite) {
+                blockEntityAdj = world.getChunkAt(posAdj).getBlockEntity(posAdj);
             }
         }
 
@@ -192,12 +192,12 @@ public class PcaSyncProtocol {
         // 就算被恶意攻击应该不会造成什么损失
         // 大不了 op 直接拉黑
         // The method in World now checks that the caller is from the same thread...
-        BlockEntity blockEntity = world.getWorldChunk(pos).getBlockEntity(pos);
+        BlockEntity blockEntity = world.getChunkAt(pos).getBlockEntity(pos);
         if (blockEntity != null) {
             updateBlockEntity(player, blockEntity);
         }
 
-        Pair<Identifier, BlockPos> pair = new ImmutablePair<>(player.getEntityWorld().getRegistryKey().getValue(), pos);
+        Pair<ResourceLocation, BlockPos> pair = new ImmutablePair<>(player.getCommandSenderWorld().dimension().location(), pos);
         lock.lock();
         playerWatchBlockPos.put(player, pair);
         if (!blockPosWatchPlayerSet.containsKey(pair)) {
@@ -210,46 +210,46 @@ public class PcaSyncProtocol {
     // 客户端请求同步 Entity
     // 包内包含 entityId
     // 由于正常的场景一般不会跨世界请求数据，因此包内并不包含 World，以玩家所在的 World 为准
-    private static void syncEntityHandler(MinecraftServer server, ServerPlayerEntity player,
-                                          ServerPlayNetworkHandler handler, PacketByteBuf buf,
+    private static void syncEntityHandler(MinecraftServer server, ServerPlayer player,
+                                          ServerGamePacketListenerImpl handler, FriendlyByteBuf buf,
                                           PacketSender responseSender) {
-        if (!PcaSettings.pcaSyncProtocol) {
+        if (!PluslsCarpetAdditionSettings.pcaSyncProtocol) {
             return;
         }
         int entityId = buf.readInt();
-        ServerWorld world = player.getWorld();
-        Entity entity = world.getEntityById(entityId);
+        ServerLevel world = player.getLevel();
+        Entity entity = world.getEntity(entityId);
         if (entity == null) {
-            ModInfo.LOGGER.debug("Can't find entity {}.", entityId);
+            PluslsCarpetAdditionReference.getLogger().debug("Can't find entity {}.", entityId);
         } else {
             clearPlayerWatchData(player);
-            if (entity instanceof PlayerEntity) {
-                if (PcaSettings.pcaSyncPlayerEntity == PcaSettings.PCA_SYNC_PLAYER_ENTITY_OPTIONS.NOBODY) {
+            if (entity instanceof Player) {
+                if (PluslsCarpetAdditionSettings.pcaSyncPlayerEntity == PluslsCarpetAdditionSettings.PCA_SYNC_PLAYER_ENTITY_OPTIONS.NOBODY) {
                     return;
-                } else if (PcaSettings.pcaSyncPlayerEntity == PcaSettings.PCA_SYNC_PLAYER_ENTITY_OPTIONS.BOT) {
+                } else if (PluslsCarpetAdditionSettings.pcaSyncPlayerEntity == PluslsCarpetAdditionSettings.PCA_SYNC_PLAYER_ENTITY_OPTIONS.BOT) {
                     if (!(entity instanceof EntityPlayerMPFake)) {
                         return;
                     }
-                } else if (PcaSettings.pcaSyncPlayerEntity == PcaSettings.PCA_SYNC_PLAYER_ENTITY_OPTIONS.OPS) {
-                    if (!(entity instanceof EntityPlayerMPFake) && server.getPermissionLevel(player.getGameProfile()) < 2) {
+                } else if (PluslsCarpetAdditionSettings.pcaSyncPlayerEntity == PluslsCarpetAdditionSettings.PCA_SYNC_PLAYER_ENTITY_OPTIONS.OPS) {
+                    if (!(entity instanceof EntityPlayerMPFake) && server.getProfilePermissions(player.getGameProfile()) < 2) {
                         return;
                     }
-                } else if (PcaSettings.pcaSyncPlayerEntity == PcaSettings.PCA_SYNC_PLAYER_ENTITY_OPTIONS.OPS_AND_SELF) {
+                } else if (PluslsCarpetAdditionSettings.pcaSyncPlayerEntity == PluslsCarpetAdditionSettings.PCA_SYNC_PLAYER_ENTITY_OPTIONS.OPS_AND_SELF) {
                     if (!(entity instanceof EntityPlayerMPFake) &&
-                            server.getPermissionLevel(player.getGameProfile()) < 2 &&
+                            server.getProfilePermissions(player.getGameProfile()) < 2 &&
                             entity != player) {
                         return;
                     }
-                } else if (PcaSettings.pcaSyncPlayerEntity != PcaSettings.PCA_SYNC_PLAYER_ENTITY_OPTIONS.EVERYONE) {
+                } else if (PluslsCarpetAdditionSettings.pcaSyncPlayerEntity != PluslsCarpetAdditionSettings.PCA_SYNC_PLAYER_ENTITY_OPTIONS.EVERYONE) {
                     // wtf????
-                    ModInfo.LOGGER.warn("syncEntityHandler wtf???");
+                    PluslsCarpetAdditionReference.getLogger().warn("syncEntityHandler wtf???");
                     return;
                 }
             }
-            ModInfo.LOGGER.debug("{} watch entity {}: {}", player.getName().getString(), entityId, entity);
+            PluslsCarpetAdditionReference.getLogger().debug("{} watch entity {}: {}", player.getName().getString(), entityId, entity);
             updateEntity(player, entity);
 
-            Pair<Identifier, Entity> pair = new ImmutablePair<>(entity.getEntityWorld().getRegistryKey().getValue(), entity);
+            Pair<ResourceLocation, Entity> pair = new ImmutablePair<>(entity.getCommandSenderWorld().dimension().location(), entity);
             lock.lock();
             playerWatchEntity.put(player, pair);
             if (!entityWatchPlayerSet.containsKey(pair)) {
@@ -260,7 +260,7 @@ public class PcaSyncProtocol {
         }
     }
 
-    private static MutablePair<Identifier, Entity> getIdentifierEntityPair(Identifier identifier, Entity entity) {
+    private static MutablePair<ResourceLocation, Entity> getIdentifierEntityPair(ResourceLocation identifier, Entity entity) {
         pairLock.lock();
         identifierEntityPair.setLeft(identifier);
         identifierEntityPair.setRight(entity);
@@ -268,7 +268,7 @@ public class PcaSyncProtocol {
         return identifierEntityPair;
     }
 
-    private static MutablePair<Identifier, BlockPos> getIdentifierBlockPosPair(Identifier identifier, BlockPos pos) {
+    private static MutablePair<ResourceLocation, BlockPos> getIdentifierBlockPosPair(ResourceLocation identifier, BlockPos pos) {
         pairLock.lock();
         identifierBlockPosPair.setLeft(identifier);
         identifierBlockPosPair.setRight(pos);
@@ -277,23 +277,23 @@ public class PcaSyncProtocol {
     }
 
     // 工具
-    private static @Nullable Set<ServerPlayerEntity> getWatchPlayerList(@NotNull Entity entity) {
-        return entityWatchPlayerSet.get(getIdentifierEntityPair(entity.getEntityWorld().getRegistryKey().getValue(), entity));
+    private static @Nullable Set<ServerPlayer> getWatchPlayerList(@NotNull Entity entity) {
+        return entityWatchPlayerSet.get(getIdentifierEntityPair(entity.getCommandSenderWorld().dimension().location(), entity));
     }
 
-    private static @Nullable Set<ServerPlayerEntity> getWatchPlayerList(@NotNull World world, @NotNull BlockPos blockPos) {
-        return blockPosWatchPlayerSet.get(getIdentifierBlockPosPair(world.getRegistryKey().getValue(), blockPos));
+    private static @Nullable Set<ServerPlayer> getWatchPlayerList(@NotNull Level world, @NotNull BlockPos blockPos) {
+        return blockPosWatchPlayerSet.get(getIdentifierBlockPosPair(world.dimension().location(), blockPos));
     }
 
     public static boolean syncEntityToClient(@NotNull Entity entity) {
-        if (entity.getEntityWorld().isClient()) {
+        if (entity.getCommandSenderWorld().isClientSide()) {
             return false;
         }
         lock.lock();
-        Set<ServerPlayerEntity> playerList = getWatchPlayerList(entity);
+        Set<ServerPlayer> playerList = getWatchPlayerList(entity);
         boolean ret = false;
         if (playerList != null) {
-            for (ServerPlayerEntity player : playerList) {
+            for (ServerPlayer player : playerList) {
                 updateEntity(player, entity);
                 ret = true;
             }
@@ -304,31 +304,31 @@ public class PcaSyncProtocol {
 
     public static boolean syncBlockEntityToClient(@NotNull BlockEntity blockEntity) {
         boolean ret = false;
-        World world = blockEntity.getWorld();
-        BlockPos pos = blockEntity.getPos();
+        Level world = blockEntity.getLevel();
+        BlockPos pos = blockEntity.getBlockPos();
         // 在生成世界时可能会产生空指针
         if (world != null) {
-            if (world.isClient()) {
+            if (world.isClientSide()) {
                 return false;
             }
             BlockState blockState = world.getBlockState(pos);
             lock.lock();
-            Set<ServerPlayerEntity> playerList = getWatchPlayerList(world, blockEntity.getPos());
+            Set<ServerPlayer> playerList = getWatchPlayerList(world, blockEntity.getBlockPos());
 
-            Set<ServerPlayerEntity> playerListAdj = null;
+            Set<ServerPlayer> playerListAdj = null;
 
             if (blockState.getBlock() instanceof ChestBlock) {
-                if (blockState.get(ChestBlock.CHEST_TYPE) != ChestType.SINGLE) {
+                if (blockState.getValue(ChestBlock.TYPE) != ChestType.SINGLE) {
                     // 如果是一个大箱子需要特殊处理
                     // 上面不用 isOf 是为了考虑到陷阱箱的情况，陷阱箱继承自箱子
-                    BlockPos posAdj = pos.offset(ChestBlock.getFacing(blockState));
+                    BlockPos posAdj = pos.relative(ChestBlock.getConnectedDirection(blockState));
                     playerListAdj = getWatchPlayerList(world, posAdj);
                 }
-            } else if (PcaMod.tisCarpetLoaded && blockState.isOf(Blocks.BARREL) && CarpetServer.settingsManager.getRule("largeBarrel").getBoolValue()) {
-                Direction directionOpposite = blockState.get(BarrelBlock.FACING).getOpposite();
-                BlockPos posAdj = pos.offset(directionOpposite);
+            } else if (PluslsCarpetAdditionReference.tisCarpetLoaded && blockState.is(Blocks.BARREL) && CarpetServer.settingsManager.getRule("largeBarrel").getBoolValue()) {
+                Direction directionOpposite = blockState.getValue(BarrelBlock.FACING).getOpposite();
+                BlockPos posAdj = pos.relative(directionOpposite);
                 BlockState blockStateAdj = world.getBlockState(posAdj);
-                if (blockStateAdj.isOf(Blocks.BARREL) && blockStateAdj.get(BarrelBlock.FACING) == directionOpposite) {
+                if (blockStateAdj.is(Blocks.BARREL) && blockStateAdj.getValue(BarrelBlock.FACING) == directionOpposite) {
                     playerListAdj = getWatchPlayerList(world, posAdj);
                 }
             }
@@ -341,7 +341,7 @@ public class PcaSyncProtocol {
             }
 
             if (playerList != null) {
-                for (ServerPlayerEntity player : playerList) {
+                for (ServerPlayer player : playerList) {
                     updateBlockEntity(player, blockEntity);
                     ret = true;
                 }
@@ -351,11 +351,11 @@ public class PcaSyncProtocol {
         return ret;
     }
 
-    private static void clearPlayerWatchEntity(ServerPlayerEntity player) {
+    private static void clearPlayerWatchEntity(ServerPlayer player) {
         lock.lock();
-        Pair<Identifier, Entity> pair = playerWatchEntity.get(player);
+        Pair<ResourceLocation, Entity> pair = playerWatchEntity.get(player);
         if (pair != null) {
-            Set<ServerPlayerEntity> playerSet = entityWatchPlayerSet.get(pair);
+            Set<ServerPlayer> playerSet = entityWatchPlayerSet.get(pair);
             playerSet.remove(player);
             if (playerSet.isEmpty()) {
                 entityWatchPlayerSet.remove(pair);
@@ -365,11 +365,11 @@ public class PcaSyncProtocol {
         lock.unlock();
     }
 
-    private static void clearPlayerWatchBlock(ServerPlayerEntity player) {
+    private static void clearPlayerWatchBlock(ServerPlayer player) {
         lock.lock();
-        Pair<Identifier, BlockPos> pair = playerWatchBlockPos.get(player);
+        Pair<ResourceLocation, BlockPos> pair = playerWatchBlockPos.get(player);
         if (pair != null) {
-            Set<ServerPlayerEntity> playerSet = blockPosWatchPlayerSet.get(pair);
+            Set<ServerPlayer> playerSet = blockPosWatchPlayerSet.get(pair);
             playerSet.remove(player);
             if (playerSet.isEmpty()) {
                 blockPosWatchPlayerSet.remove(pair);
@@ -387,8 +387,8 @@ public class PcaSyncProtocol {
         blockPosWatchPlayerSet.clear();
         entityWatchPlayerSet.clear();
         lock.unlock();
-        if (PcaMod.server != null) {
-            for (ServerPlayerEntity player : PcaMod.server.getPlayerManager().getPlayerList()) {
+        if (PluslsCarpetAdditionExtension.getServer() != null) {
+            for (ServerPlayer player : PluslsCarpetAdditionExtension.getServer().getPlayerList().getPlayers()) {
                 disablePcaSyncProtocol(player);
             }
         }
@@ -396,17 +396,17 @@ public class PcaSyncProtocol {
 
     // 启用 PcaSyncProtocol
     public static void enablePcaSyncProtocolGlobal() {
-        if (PcaMod.server == null) {
+        if (PluslsCarpetAdditionExtension.getServer() == null) {
             return;
         }
-        for (ServerPlayerEntity player : PcaMod.server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayer player : PluslsCarpetAdditionExtension.getServer().getPlayerList().getPlayers()) {
             enablePcaSyncProtocol(player);
         }
     }
 
 
     // 删除玩家数据
-    public static void clearPlayerWatchData(ServerPlayerEntity player) {
+    public static void clearPlayerWatchData(ServerPlayer player) {
         PcaSyncProtocol.clearPlayerWatchBlock(player);
         PcaSyncProtocol.clearPlayerWatchEntity(player);
     }

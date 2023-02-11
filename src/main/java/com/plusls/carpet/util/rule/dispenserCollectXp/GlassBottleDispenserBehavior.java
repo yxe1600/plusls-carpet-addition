@@ -1,58 +1,58 @@
 package com.plusls.carpet.util.rule.dispenserCollectXp;
 
-import com.plusls.carpet.PcaSettings;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.util.dispenser.MyFallibleItemDispenserBehavior;
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.block.dispenser.DispenserBehavior;
-import net.minecraft.block.dispenser.ItemDispenserBehavior;
-import net.minecraft.block.entity.DispenserBlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ExperienceOrbEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.BlockPointer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 
 public class GlassBottleDispenserBehavior extends MyFallibleItemDispenserBehavior {
-    private final ItemDispenserBehavior fallbackBehavior = new ItemDispenserBehavior();
+    private final DefaultDispenseItemBehavior fallbackBehavior = new DefaultDispenseItemBehavior();
 
-    public GlassBottleDispenserBehavior(DispenserBehavior oldDispenserBehavior) {
+    public GlassBottleDispenserBehavior(DispenseItemBehavior oldDispenserBehavior) {
         super(oldDispenserBehavior);
     }
 
     public static void init() {
         DispenserBlock.registerBehavior(Items.GLASS_BOTTLE,
-                new GlassBottleDispenserBehavior(DispenserBlock.BEHAVIORS.get(Items.GLASS_BOTTLE)));
+                new GlassBottleDispenserBehavior(DispenserBlock.DISPENSER_REGISTRY.get(Items.GLASS_BOTTLE)));
     }
 
-    private ItemStack replaceItem(BlockPointer pointer, ItemStack oldItem, ItemStack newItem) {
-        oldItem.decrement(1);
+    private ItemStack replaceItem(BlockSource pointer, ItemStack oldItem, ItemStack newItem) {
+        oldItem.shrink(1);
         if (oldItem.isEmpty())
             return newItem.copy();
-        if (((DispenserBlockEntity) pointer.getBlockEntity()).addToFirstFreeSlot(newItem.copy()) < 0)
+        if (((DispenserBlockEntity) pointer.getEntity()).addItem(newItem.copy()) < 0)
             this.fallbackBehavior.dispense(pointer, newItem.copy());
         return oldItem;
     }
 
     @Override
-    public ItemStack dispenseSilently(BlockPointer pointer, ItemStack itemStack) {
-        if (!PcaSettings.dispenserCollectXp) {
+    public ItemStack dispenseSilently(BlockSource pointer, ItemStack itemStack) {
+        if (!PluslsCarpetAdditionSettings.dispenserCollectXp) {
             return itemStack;
         }
-        BlockPos faceBlockPos = pointer.getPos().offset(pointer.getBlockState().get(DispenserBlock.FACING));
+        BlockPos faceBlockPos = pointer.getPos().relative(pointer.getBlockState().getValue(DispenserBlock.FACING));
 
-        List<ExperienceOrbEntity> xpEntityList = pointer.getWorld().getEntitiesByClass(ExperienceOrbEntity.class,
-                new Box(faceBlockPos), Entity::isAlive);
+        List<ExperienceOrb> xpEntityList = pointer.getLevel().getEntitiesOfClass(ExperienceOrb.class,
+                new AABB(faceBlockPos), Entity::isAlive);
 
         int currentXp = 0;
         // 运算次数不多，所以多循环几次也无所谓（放弃思考.jpg
-        for (ExperienceOrbEntity xpEntity : xpEntityList) {
-            for (; xpEntity.pickingCount > 0; --xpEntity.pickingCount) {
-                currentXp += xpEntity.getExperienceAmount();
-                if (xpEntity.pickingCount == 1) {
+        for (ExperienceOrb xpEntity : xpEntityList) {
+            for (; xpEntity.count > 0; --xpEntity.count) {
+                currentXp += xpEntity.getValue();
+                if (xpEntity.count == 1) {
                     // 有残留经验也无所谓，直接把经验球销毁
                     // 付出点代价很合理
                     xpEntity.discard();

@@ -1,16 +1,16 @@
 package com.plusls.carpet.mixin.rule.pcaSyncProtocol.block;
 
-import com.plusls.carpet.ModInfo;
-import com.plusls.carpet.PcaSettings;
+import com.plusls.carpet.PluslsCarpetAdditionReference;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BeehiveBlockEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,37 +22,59 @@ import java.util.Objects;
 
 @Mixin(BeehiveBlockEntity.class)
 public abstract class MixinBeehiveBlockEntity extends BlockEntity {
-
     public MixinBeehiveBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 
-    @Inject(method = "tickBees", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;remove()V", shift = At.Shift.AFTER))
-    private static void postTickBees(World world, BlockPos pos, BlockState state, List<BeehiveBlockEntity.Bee> bees, BlockPos flowerPos, CallbackInfo ci) {
-        if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(Objects.requireNonNull(world.getBlockEntity(pos)))) {
-            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", pos);
+    @Inject(
+            method = "tickOccupants",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/Iterator;remove()V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private static void postTickOccupants(Level level, BlockPos blockPos, BlockState blockState, List<BeehiveBlockEntity.BeeData> list, BlockPos blockPos2, CallbackInfo ci) {
+        if (PluslsCarpetAdditionSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(Objects.requireNonNull(level.getBlockEntity(blockPos)))) {
+            PluslsCarpetAdditionReference.getLogger().debug("update BeehiveBlockEntity: {}", blockPos);
         }
     }
 
-    @Inject(method = "tryReleaseBee", at = @At(value = "RETURN"))
-    public void postTryReleaseBee(BlockState state, BeehiveBlockEntity.BeeState beeState, CallbackInfoReturnable<List<Entity>> cir) {
-        if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this) && cir.getReturnValue() != null) {
-            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
+    @Inject(
+            method = "releaseAllOccupants",
+            at = @At(
+                    value = "RETURN"
+            )
+    )
+    public void postReleaseAllOccupants(BlockState state, BeehiveBlockEntity.BeeReleaseStatus beeState, CallbackInfoReturnable<List<Entity>> cir) {
+        if (PluslsCarpetAdditionSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this) && cir.getReturnValue() != null) {
+            PluslsCarpetAdditionReference.getLogger().debug("update BeehiveBlockEntity: {}", this.worldPosition);
         }
     }
 
-    @Inject(method = "readNbt", at = @At(value = "RETURN"))
-    public void postFromTag(NbtCompound nbt, CallbackInfo ci) {
-        if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
-            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
+    @Inject(
+            method = "load",
+            at = @At(
+                    value = "RETURN"
+            )
+    )
+    public void postLoad(CompoundTag compoundTag, CallbackInfo ci) {
+        if (PluslsCarpetAdditionSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
+            PluslsCarpetAdditionReference.getLogger().debug("update BeehiveBlockEntity: {}", this.worldPosition);
         }
     }
 
-    @Inject(method = "tryEnterHive(Lnet/minecraft/entity/Entity;ZI)V", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;discard()V", ordinal = 0))
-    public void postEnterHive(Entity entity, boolean hasNectar, int ticksInHive, CallbackInfo ci) {
-        if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
-            ModInfo.LOGGER.debug("update BeehiveBlockEntity: {}", this.pos);
+    @Inject(
+            method = "addOccupantWithPresetTicks",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/Entity;discard()V",
+                    ordinal = 0
+            )
+    )
+    public void postAddOccupantWithPresetTicks(Entity entity, boolean hasNectar, int ticksInHive, CallbackInfo ci) {
+        if (PluslsCarpetAdditionSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
+            PluslsCarpetAdditionReference.getLogger().debug("update BeehiveBlockEntity: {}", this.worldPosition);
         }
     }
 }

@@ -1,11 +1,11 @@
 package com.plusls.carpet.util.rule.emptyShulkerBoxStack;
 
-import com.plusls.carpet.PcaSettings;
-import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 
 public class ShulkerBoxItemUtil {
     public static final int SHULKERBOX_MAX_STACK_AMOUNT = 64;
@@ -13,11 +13,11 @@ public class ShulkerBoxItemUtil {
     public static boolean isEmptyShulkerBoxItem(ItemStack itemStack) {
         if (itemStack.getItem() instanceof BlockItem &&
                 ((BlockItem) itemStack.getItem()).getBlock() instanceof ShulkerBoxBlock) {
-            NbtCompound nbt = itemStack.getNbt();
+            CompoundTag nbt = itemStack.getTag();
             if (nbt != null && nbt.contains("BlockEntityTag", 10)) {
-                NbtCompound tag = nbt.getCompound("BlockEntityTag");
+                CompoundTag tag = nbt.getCompound("BlockEntityTag");
                 if (tag.contains("Items", 9)) {
-                    NbtList tagList = tag.getList("Items", 10);
+                    ListTag tagList = tag.getList("Items", 10);
                     return tagList.size() <= 0;
                 }
             }
@@ -28,14 +28,14 @@ public class ShulkerBoxItemUtil {
     }
 
     public static int getMaxCount(ItemStack itemStack) {
-        if (PcaSettings.emptyShulkerBoxStack && ShulkerBoxItemUtil.isEmptyShulkerBoxItem(itemStack)) {
+        if (PluslsCarpetAdditionSettings.emptyShulkerBoxStack && ShulkerBoxItemUtil.isEmptyShulkerBoxItem(itemStack)) {
             return ShulkerBoxItemUtil.SHULKERBOX_MAX_STACK_AMOUNT;
         } else {
-            return itemStack.getMaxCount();
+            return itemStack.getMaxStackSize();
         }
     }
 
     public static boolean isStackable(ItemStack itemStack) {
-        return getMaxCount(itemStack) > 1 && (!itemStack.isDamageable() || !itemStack.isDamaged());
+        return getMaxCount(itemStack) > 1 && (!itemStack.isDamageableItem() || !itemStack.isDamaged());
     }
 }

@@ -1,33 +1,33 @@
 package com.plusls.carpet.util.rule.gravestone;
 
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.SimpleContainer;
 
 public class DeathInfo {
     public final long deathTime;
     public final int xp;
-    public final SimpleInventory inventory;
+    public final SimpleContainer inventory;
 
-    public DeathInfo(long deathTime, int xp, SimpleInventory inv) {
+    public DeathInfo(long deathTime, int xp, SimpleContainer inv) {
         this.deathTime = deathTime;
         this.xp = xp;
         this.inventory = inv;
     }
 
-    public static DeathInfo fromTag(NbtCompound tag) {
+    public static DeathInfo fromTag(CompoundTag tag) {
         long deathTime = tag.getLong("DeathTime");
         int xp = tag.getInt("XP");
-        SimpleInventory inventory = new SimpleInventory(GravestoneUtil.PLAYER_INVENTORY_SIZE);
-        inventory.readNbtList(tag.getList("Items", NbtElement.COMPOUND_TYPE));
+        SimpleContainer inventory = new SimpleContainer(GravestoneUtil.PLAYER_INVENTORY_SIZE);
+        inventory.fromTag(tag.getList("Items", Tag.TAG_COMPOUND));
         return new DeathInfo(deathTime, xp, inventory);
     }
 
-    public NbtCompound toTag() {
-        NbtCompound tag = new NbtCompound();
+    public CompoundTag toTag() {
+        CompoundTag tag = new CompoundTag();
         tag.putLong("DeathTime", this.deathTime);
         tag.putInt("XP", this.xp);
-        tag.put("Items", this.inventory.toNbtList());
+        tag.put("Items", this.inventory.createTag());
         return tag;
     }
 }

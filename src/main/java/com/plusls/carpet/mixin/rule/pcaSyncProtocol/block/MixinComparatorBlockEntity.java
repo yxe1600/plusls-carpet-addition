@@ -1,13 +1,13 @@
 package com.plusls.carpet.mixin.rule.pcaSyncProtocol.block;
 
-import com.plusls.carpet.ModInfo;
-import com.plusls.carpet.PcaSettings;
+import com.plusls.carpet.PluslsCarpetAdditionReference;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.ComparatorBlockEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.ComparatorBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ComparatorBlockEntity.class)
@@ -17,10 +17,10 @@ public abstract class MixinComparatorBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void markDirty() {
-        super.markDirty();
-        if (PcaSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
-            ModInfo.LOGGER.debug("update ComparatorBlockEntity: {}", this.pos);
+    public void setChanged() {
+        super.setChanged();
+        if (PluslsCarpetAdditionSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
+            PluslsCarpetAdditionReference.getLogger().debug("update ComparatorBlockEntity: {}", this.worldPosition);
         }
     }
 }

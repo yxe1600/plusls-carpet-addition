@@ -1,15 +1,15 @@
 package com.plusls.carpet.mixin.rule.renewableNetherite;
 
-import com.plusls.carpet.PcaSettings;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.item.*;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.World;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,13 +19,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ItemEntity.class)
 public abstract class MixinItemEntity extends Entity {
-
-    public MixinItemEntity(EntityType<?> type, World world) {
+    public MixinItemEntity(EntityType<?> type, Level world) {
         super(type, world);
     }
 
     @Nullable
-    private static ItemStack getNetheriteResult(ItemStack stack) {
+    private static ItemStack pca$getNetheriteResult(@NotNull ItemStack stack) {
         Item newItem;
         if (Items.DIAMOND_SWORD.equals(stack.getItem())) {
             newItem = Items.NETHERITE_SWORD;
@@ -52,33 +51,40 @@ public abstract class MixinItemEntity extends Entity {
             return null;
         }
         ItemStack ret = new ItemStack(newItem);
-        NbtCompound nbtCompound = stack.getNbt();
+        CompoundTag compoundTag = stack.getTag();
 
-        if (nbtCompound != null) {
-            ret.setNbt(nbtCompound.copy());
-            ret.setDamage(ret.getMaxDamage() - 1);
+        if (compoundTag != null) {
+            ret.setTag(compoundTag.copy());
+            ret.setDamageValue(ret.getMaxDamage() - 1);
         }
         return ret;
     }
 
     @Shadow
-    public abstract ItemStack getStack();
+    public abstract ItemStack getItem();
 
-    @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ItemEntity;discard()V", ordinal = 0))
+    @Inject(
+            method = "hurt",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/item/ItemEntity;discard()V",
+                    ordinal = 0
+            )
+    )
     private void checkDiamondEquip(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        if (!PcaSettings.renewableNetheriteEquip || this.world.isClient) {
+        if (!PluslsCarpetAdditionSettings.renewableNetheriteEquip || this.level.isClientSide) {
             return;
         }
-        ServerWorld world = (ServerWorld) this.world;
-        if (source == DamageSource.LAVA && world.getRegistryKey() == World.NETHER) {
-            ItemStack stack = getStack();
-            if (!stack.isEmpty() && stack.getMaxDamage() - stack.getDamage() == 1) {
+        ServerLevel level = (ServerLevel) this.level;
+        if (source == DamageSource.LAVA && level.dimension() == Level.NETHER) {
+            ItemStack stack = this.getItem();
+            if (!stack.isEmpty() && stack.getMaxDamage() - stack.getDamageValue() == 1) {
                 Item item = stack.getItem();
                 if ((item instanceof ArmorItem && ((ArmorItem) item).getMaterial() == ArmorMaterials.DIAMOND) ||
-                        item instanceof ToolItem && ((ToolItem) item).getMaterial() == ToolMaterials.DIAMOND) {
-                    ItemStack newItemStack = getNetheriteResult(stack);
+                        item instanceof TieredItem && ((TieredItem) item).getTier() == Tiers.DIAMOND) {
+                    ItemStack newItemStack = pca$getNetheriteResult(stack);
                     if (newItemStack != null) {
-                        world.spawnEntity(new ItemEntity(world, this.getX(), this.getY(), this.getZ(), newItemStack));
+                        level.addFreshEntity(new ItemEntity(level, this.getX(), this.getY(), this.getZ(), newItemStack));
                     }
                 }
             }

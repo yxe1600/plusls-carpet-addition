@@ -1,56 +1,56 @@
 package com.plusls.carpet.mixin.rule.useDyeOnShulkerBox;
 
-import com.plusls.carpet.PcaSettings;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.block.entity.ShulkerBoxBlockEntity;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import com.plusls.carpet.PluslsCarpetAdditionSettings;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(DyeItem.class)
 public abstract class MixinDyeItem extends Item {
-    public MixinDyeItem(Settings settings) {
+    public MixinDyeItem(Properties settings) {
         super(settings);
     }
 
-    @Shadow
-    public abstract DyeColor getColor();
+    @Shadow public abstract DyeColor getDyeColor();
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        if (!PcaSettings.useDyeOnShulkerBox) {
-            return ActionResult.PASS;
+    public @NotNull InteractionResult useOn(UseOnContext context) {
+        if (!PluslsCarpetAdditionSettings.useDyeOnShulkerBox) {
+            return InteractionResult.PASS;
         }
-        World world = context.getWorld();
-        BlockPos pos = context.getBlockPos();
-        BlockState blockState = world.getBlockState(pos);
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        BlockState blockState = level.getBlockState(pos);
 
-        if (blockState.isOf(Blocks.SHULKER_BOX)) {
-            if (!world.isClient()) {
-                ShulkerBoxBlockEntity blockEntity = (ShulkerBoxBlockEntity) world.getBlockEntity(pos);
-                BlockState newBlockState = ShulkerBoxBlock.get(getColor()).getDefaultState().
-                        with(ShulkerBoxBlock.FACING, blockState.get(ShulkerBoxBlock.FACING));
+        if (blockState.is(Blocks.SHULKER_BOX)) {
+            if (!level.isClientSide()) {
+                ShulkerBoxBlockEntity blockEntity = (ShulkerBoxBlockEntity) level.getBlockEntity(pos);
+                BlockState newBlockState = ShulkerBoxBlock.getBlockByColor(this.getDyeColor()).defaultBlockState().
+                        setValue(ShulkerBoxBlock.FACING, blockState.getValue(ShulkerBoxBlock.FACING));
 
-                if (world.setBlockState(pos, newBlockState)) {
-                    ShulkerBoxBlockEntity newBlockEntity = (ShulkerBoxBlockEntity) world.getBlockEntity(pos);
+                if (level.setBlockAndUpdate(pos, newBlockState)) {
+                    ShulkerBoxBlockEntity newBlockEntity = (ShulkerBoxBlockEntity) level.getBlockEntity(pos);
                     assert blockEntity != null;
                     assert newBlockEntity != null;
-                    newBlockEntity.readInventoryNbt(blockEntity.createNbt());
+                    newBlockEntity.loadFromTag(blockEntity.saveWithoutMetadata());
                     newBlockEntity.setCustomName(blockEntity.getCustomName());
-                    newBlockEntity.markDirty();
-                    context.getStack().decrement(1);
+                    newBlockEntity.setChanged();
+                    context.getItemInHand().shrink(1);
                 }
             }
-            return ActionResult.success(world.isClient);
+            return InteractionResult.sidedSuccess(level.isClientSide);
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 }
