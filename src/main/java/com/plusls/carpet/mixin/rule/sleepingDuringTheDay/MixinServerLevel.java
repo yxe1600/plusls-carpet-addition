@@ -18,7 +18,11 @@ import java.util.function.Supplier;
 @Mixin(ServerLevel.class)
 public abstract class MixinServerLevel extends Level implements WorldGenLevel {
     protected MixinServerLevel(WritableLevelData properties, ResourceKey<Level> registryRef, Holder<DimensionType> dimension, Supplier<ProfilerFiller> profiler, boolean isClient, boolean debugWorld, long seed, int maxChainedNeighborUpdates) {
+        //#if MC > 11802
         super(properties, registryRef, dimension, profiler, isClient, debugWorld, seed, maxChainedNeighborUpdates);
+        //#else
+        //$$ super(properties, registryRef, dimension, profiler, isClient, debugWorld, seed);
+        //#endif
     }
 
     // 根据当前时间设置夜晚和白天

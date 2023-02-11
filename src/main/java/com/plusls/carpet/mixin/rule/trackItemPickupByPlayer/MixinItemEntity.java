@@ -1,9 +1,8 @@
 package com.plusls.carpet.mixin.rule.trackItemPickupByPlayer;
 
-import carpet.utils.Translations;
 import com.plusls.carpet.PluslsCarpetAdditionExtension;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
-import net.minecraft.network.chat.Component;
+import com.plusls.carpet.util.StringUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -16,6 +15,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import top.hendrixshen.magiclib.compat.minecraft.network.chat.ComponentCompatApi;
+import top.hendrixshen.magiclib.util.MessageUtil;
 
 @Mixin(ItemEntity.class)
 public abstract class MixinItemEntity extends Entity {
@@ -56,11 +57,11 @@ public abstract class MixinItemEntity extends Entity {
     )
     private void checkPickup(Player player, CallbackInfo ci) {
         if (!this.level.isClientSide() && PluslsCarpetAdditionSettings.trackItemPickupByPlayer && PluslsCarpetAdditionExtension.getServer() != null) {
-            Component text = Component.literal(String.format(Translations.tr("pca.message.pickup"), player.getName().getString(),
-                    this.getX(), this.getY(), this.getZ(),
-                    this.getDeltaMovement().x(), this.getDeltaMovement().y(), this.getDeltaMovement().z()));
             if (pca$trackItemPickupByPlayerCooldown == 0) {
-                PluslsCarpetAdditionExtension.getServer().getPlayerList().broadcastSystemMessage(text, true);
+                MessageUtil.sendServerMessage(PluslsCarpetAdditionExtension.getServer(),
+                        ComponentCompatApi.literal(StringUtil.tr("pca.message.pickup", player.getName().getString(),
+                                this.getX(), this.getY(), this.getZ(),
+                                this.getDeltaMovement().x(), this.getDeltaMovement().y(), this.getDeltaMovement().z())));
             }
             pca$trackItemPickupByPlayerCooldown = (pca$trackItemPickupByPlayerCooldown + 1) % 100;
             pca$pickuped = true;

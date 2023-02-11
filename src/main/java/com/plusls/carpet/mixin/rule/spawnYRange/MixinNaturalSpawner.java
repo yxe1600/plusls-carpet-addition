@@ -2,11 +2,16 @@ package com.plusls.carpet.mixin.rule.spawnYRange;
 
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.NaturalSpawner;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+//#if MC > 11802
+import net.minecraft.util.RandomSource;
+//#else
+//$$ import java.util.Random;
+//#endif
 
 @Mixin(NaturalSpawner.class)
 public class MixinNaturalSpawner {
@@ -17,7 +22,11 @@ public class MixinNaturalSpawner {
                     ordinal = 0
             )
     )
+    //#if MC > 11802
     private static int modifySpawnY(RandomSource random, int min, int max) {
+    //#else
+    //$$ private static int modifySpawnY(Random random, int min, int max) {
+    //#endif
         if (PluslsCarpetAdditionSettings.spawnYMax != PluslsCarpetAdditionSettings.INT_DISABLE) {
             max = PluslsCarpetAdditionSettings.spawnYMax;
         }

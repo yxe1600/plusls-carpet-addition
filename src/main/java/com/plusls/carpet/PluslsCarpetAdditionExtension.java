@@ -43,7 +43,7 @@ public class PluslsCarpetAdditionExtension implements CarpetExtensionCompatApi {
                     PcaSyncProtocol.disablePcaSyncProtocolGlobal();
                 }
             } else if (rule.getName().equals("pcaDebug")) {
-                Configurator.setLevel(PluslsCarpetAdditionReference.getLogger(), MiscUtil.cast(rule.getValue()) ? Level.DEBUG : Level.INFO);
+                Configurator.setLevel(PluslsCarpetAdditionReference.getModIdentifier(), MiscUtil.cast(rule.getValue()) ? Level.DEBUG : Level.INFO);
             }
         });
     }
@@ -59,7 +59,7 @@ public class PluslsCarpetAdditionExtension implements CarpetExtensionCompatApi {
         FlipCooldown.init();
         if (PluslsCarpetAdditionSettings.pcaDebug) {
             PluslsCarpetAdditionReference.getLogger().getName();
-            Configurator.setLevel(PluslsCarpetAdditionReference.getLogger(), Level.DEBUG);
+            Configurator.setLevel(PluslsCarpetAdditionReference.getModIdentifier(), Level.DEBUG);
         }
     }
 

@@ -56,7 +56,11 @@ public abstract class MixinServerPlayerEntity extends Player {
             // 同步潜行状态到客户端
             // 如果不同步的话客户端会认为仍在潜行，从而碰撞箱的高度会计算错误
             if (pca$sneakTimes == 0 && this.connection != null) {
+                //#if MC > 11802
                 this.connection.send(new ClientboundSetEntityDataPacket(this.getId(), this.getEntityData().getNonDefaultValues()));
+                //#else
+                //$$ this.connection.send(new ClientboundSetEntityDataPacket(this.getId(), this.getEntityData(), true));
+                //#endif
             }
         }
     }
