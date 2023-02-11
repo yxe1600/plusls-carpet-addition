@@ -18,7 +18,11 @@ public class MixinNaturalSpawner {
     @Redirect(
             method = "getRandomPosWithin",
             at = @At(value = "INVOKE",
+                    //#if MC > 11802
                     target = "Lnet/minecraft/util/Mth;randomBetweenInclusive(Lnet/minecraft/util/RandomSource;II)I",
+                    //#else
+                    //$$ target = "Lnet/minecraft/util/Mth;randomBetweenInclusive(Ljava/util/Random;II)I",
+                    //#endif
                     ordinal = 0
             )
     )

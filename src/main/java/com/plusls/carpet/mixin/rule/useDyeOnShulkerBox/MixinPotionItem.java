@@ -19,9 +19,11 @@ import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
+//#if MC > 11802
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//#endif
 
 import java.util.Objects;
 
@@ -31,6 +33,7 @@ public abstract class MixinPotionItem extends Item {
         super(settings);
     }
 
+    //#if MC > 11802
     @Inject(
             method = "useOn",
             at = @At(
@@ -38,17 +41,25 @@ public abstract class MixinPotionItem extends Item {
             ),
             cancellable = true
     )
-    public void useOnBlock(@NotNull UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
-        ItemStack itemStack = context.getItemInHand();
-        Player player = context.getPlayer();
+    public void useOnBlock(@NotNull UseOnContext useOnContext, CallbackInfoReturnable<InteractionResult> cir) {
+    //#else
+    //$$ @Override
+    //$$ public @NotNull InteractionResult useOn(UseOnContext useOnContext) {
+    //#endif
+        ItemStack itemStack = useOnContext.getItemInHand();
+        Player player = useOnContext.getPlayer();
         if (!PluslsCarpetAdditionSettings.useDyeOnShulkerBox ||
                 player == null ||
                 itemStack.getItem() != Items.POTION ||
                 PotionUtils.getPotion(itemStack) != Potions.WATER) {
+            //#if MC > 11802
             return;
+            //#else
+            //$$ return InteractionResult.PASS;
+            //#endif
         }
-        Level level = context.getLevel();
-        BlockPos pos = context.getClickedPos();
+        Level level = useOnContext.getLevel();
+        BlockPos pos = useOnContext.getClickedPos();
         BlockState blockState = level.getBlockState(pos);
         Block block = blockState.getBlock();
         if (block instanceof ShulkerBoxBlock &&
@@ -66,12 +77,19 @@ public abstract class MixinPotionItem extends Item {
                     newBlockEntity.setCustomName(blockEntity.getCustomName());
                     newBlockEntity.setChanged();
                     if (!player.isCreative()) {
-                        context.getItemInHand().shrink(1);
-                        Objects.requireNonNull(context.getPlayer()).getInventory().add(new ItemStack(Items.GLASS_BOTTLE));
+                        useOnContext.getItemInHand().shrink(1);
+                        Objects.requireNonNull(useOnContext.getPlayer()).getInventory().add(new ItemStack(Items.GLASS_BOTTLE));
                     }
                 }
             }
+            //#if MC > 11802
             cir.setReturnValue(InteractionResult.sidedSuccess(level.isClientSide));
+            //#else
+            //$$ return InteractionResult.sidedSuccess(level.isClientSide);
+            //#endif
         }
+        //#if MC < 11900
+        //$$ return InteractionResult.PASS;
+        //#endif
     }
 }
