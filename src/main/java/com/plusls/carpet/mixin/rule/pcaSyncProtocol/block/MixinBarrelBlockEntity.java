@@ -12,9 +12,15 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(BarrelBlockEntity.class)
 public abstract class MixinBarrelBlockEntity extends RandomizableContainerBlockEntity {
+    //#if MC > 11605
     protected MixinBarrelBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
     }
+    //#else
+    //$$ protected MixinBarrelBlockEntity(BlockEntityType<?> blockEntityType) {
+    //$$     super(blockEntityType);
+    //$$ }
+    //#endif
 
     @Override
     public void setChanged() {

@@ -115,16 +115,8 @@ remapJar {
 setArchivesBaseName("${project.archives_base_name}-${project.minecraft_version}")
 setVersion(project.parent.version)
 setGroup(project.maven_group)
-if (mcVersion >= 11800) {
-    setSourceCompatibility(JavaVersion.VERSION_17)
-    setTargetCompatibility(JavaVersion.VERSION_17)
-} else if (mcVersion >= 11700) {
-    setSourceCompatibility(JavaVersion.VERSION_16)
-    setTargetCompatibility(JavaVersion.VERSION_16)
-} else {
-    setSourceCompatibility(JavaVersion.VERSION_1_8)
-    setTargetCompatibility(JavaVersion.VERSION_1_8)
-}
+setSourceCompatibility(JavaVersion.VERSION_1_8)
+setTargetCompatibility(JavaVersion.VERSION_1_8)
 
 processResources {
     outputs.upToDateWhen { false }

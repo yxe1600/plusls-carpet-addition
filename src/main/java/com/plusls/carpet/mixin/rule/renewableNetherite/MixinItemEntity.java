@@ -67,7 +67,11 @@ public abstract class MixinItemEntity extends Entity {
             method = "hurt",
             at = @At(
                     value = "INVOKE",
+                    //#if MC > 11605
                     target = "Lnet/minecraft/world/entity/item/ItemEntity;discard()V",
+                    //#else
+                    //$$ target = "Lnet/minecraft/world/entity/item/ItemEntity;remove()V",
+                    //#endif
                     ordinal = 0
             )
     )

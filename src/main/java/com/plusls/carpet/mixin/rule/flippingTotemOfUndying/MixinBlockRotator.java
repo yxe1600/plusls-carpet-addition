@@ -37,7 +37,7 @@ public class MixinBlockRotator {
         if (!cir.getReturnValue() && PluslsCarpetAdditionSettings.flippingTotemOfUndying &&
                 level.getGameTime() != FlipCooldown.getCoolDown(player)) {
             // 能修改世界且副手为空
-            if (!player.getAbilities().mayBuild ||
+            if (!player.getAbilitiesCompat().mayBuild ||
                     !pca$playerHoldsTotemOfUndyingMainHand(player) ||
                     !player.getOffhandItem().isEmpty()) {
                 return;
@@ -61,7 +61,8 @@ public class MixinBlockRotator {
             remap = false
     )
     private static void postFlippinEligibility(Entity entity, @NotNull CallbackInfoReturnable<Boolean> cir) {
-        if (!cir.getReturnValue() && PluslsCarpetAdditionSettings.flippingTotemOfUndying && (entity instanceof Player player)) {
+        if (!cir.getReturnValue() && PluslsCarpetAdditionSettings.flippingTotemOfUndying && (entity instanceof Player)) {
+            Player player = (Player) entity;
             // 副手不为空，主手为图腾
             boolean ret = !player.getOffhandItem().isEmpty() && pca$playerHoldsTotemOfUndyingMainHand(player);
             cir.setReturnValue(ret);

@@ -13,9 +13,15 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ShulkerBoxBlockEntity.class)
 public abstract class MixinShulkerBoxBlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer {
+    //#if MC > 11605
     protected MixinShulkerBoxBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
     }
+    //#else
+    //$$ protected MixinShulkerBoxBlockEntity(BlockEntityType<?> blockEntityType) {
+    //$$     super(blockEntityType);
+    //$$ }
+    //#endif
 
     @Override
     public void setChanged() {

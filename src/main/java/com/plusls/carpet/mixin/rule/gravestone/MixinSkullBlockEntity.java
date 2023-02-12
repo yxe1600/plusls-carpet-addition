@@ -3,16 +3,19 @@ package com.plusls.carpet.mixin.rule.gravestone;
 import com.plusls.carpet.util.rule.gravestone.DeathInfo;
 import com.plusls.carpet.util.rule.gravestone.MySkullBlockEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import top.hendrixshen.magiclib.compat.minecraft.nbt.TagCompatApi;
 
 //#if MC <= 11701
 //$$ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//#endif
+//#if MC <= 11605
+//$$ import net.minecraft.world.level.block.state.BlockState;
 //#endif
 
 @Mixin(SkullBlockEntity.class)
@@ -35,9 +38,13 @@ public class MixinSkullBlockEntity implements MySkullBlockEntity {
                     value = "RETURN"
             )
     )
-    private void postLoad(@NotNull CompoundTag nbt, CallbackInfo ci) {
-        if (nbt.contains("DeathInfo", Tag.TAG_COMPOUND)) {
-            this.pca$deathInfo = DeathInfo.fromTag(nbt.getCompound("DeathInfo"));
+    //#if MC > 11605
+    private void postLoad(@NotNull CompoundTag compoundTag, CallbackInfo ci) {
+    //#else
+    //$$ private void postLoad(BlockState blockState, @NotNull CompoundTag compoundTag, CallbackInfo ci) {
+    //#endif
+        if (compoundTag.contains("DeathInfo", TagCompatApi.TAG_COMPOUND)) {
+            this.pca$deathInfo = DeathInfo.fromTag(compoundTag.getCompound("DeathInfo"));
         }
     }
 

@@ -15,9 +15,15 @@ import org.spongepowered.asm.mixin.Mixin;
 // implements ChestAnimationProgress 会出错 不知道为啥
 @Mixin(ChestBlockEntity.class)
 public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEntity implements LidBlockEntity {
+    //#if MC > 11605
     protected MixinChestBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
     }
+    //#else
+    //$$ protected MixinChestBlockEntity(BlockEntityType<?> blockEntityType) {
+    //$$     super(blockEntityType);
+    //$$ }
+    //#endif
 
     @Override
     public void setChanged() {

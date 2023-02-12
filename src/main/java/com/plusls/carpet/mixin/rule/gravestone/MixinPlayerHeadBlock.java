@@ -27,8 +27,8 @@ public abstract class MixinPlayerHeadBlock extends SkullBlock {
         if (level.isClientSide()) {
             return;
         }
-        if (blockEntity instanceof MySkullBlockEntity graveEntity) {
-            DeathInfo deathInfo = graveEntity.getDeathInfo();
+        if (blockEntity instanceof MySkullBlockEntity ) {
+            DeathInfo deathInfo = ((MySkullBlockEntity) blockEntity).getDeathInfo();
             if (deathInfo == null) {
                 super.playerDestroy(level, player, pos, state, blockEntity, stack);
             } else {

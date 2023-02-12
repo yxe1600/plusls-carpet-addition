@@ -99,9 +99,10 @@ public class MixinDispenserBlock {
 
         BlockSourceImpl blockPointerImpl = new BlockSourceImpl(serverLevel, blockPos);
         BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
-        if (!(blockEntity instanceof DispenserBlockEntity dispenserBlockEntity)) {
+        if (!(blockEntity instanceof DispenserBlockEntity)) {
             return;
         }
+        DispenserBlockEntity dispenserBlockEntity = (DispenserBlockEntity) blockEntity;
         boolean success = false;
         while (!offer.isOutOfStock()) {
             ItemStack firstInventoryItemStack = pca$getItemFromInventory(firstItemStack, dispenserBlockEntity);
@@ -118,8 +119,8 @@ public class MixinDispenserBlock {
                 pca$itemDispenserBehavior.dispense(blockPointerImpl, outputItemStack);
                 // make villager happy ~
                 serverLevel.broadcastEntityEvent(merchantEntity, (byte) 14);
-                if (merchantEntity instanceof MyVillagerEntity myVillagerEntity) {
-                    myVillagerEntity.pca$tradeWithoutPlayer(offer);
+                if (merchantEntity instanceof MyVillagerEntity) {
+                    ((MyVillagerEntity) (merchantEntity)).pca$tradeWithoutPlayer(offer);
                 }
                 success = true;
             } else {

@@ -1,8 +1,8 @@
 package com.plusls.carpet.util.rule.gravestone;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.SimpleContainer;
+import top.hendrixshen.magiclib.compat.minecraft.nbt.TagCompatApi;
 
 public class DeathInfo {
     public final long deathTime;
@@ -19,7 +19,7 @@ public class DeathInfo {
         long deathTime = tag.getLong("DeathTime");
         int xp = tag.getInt("XP");
         SimpleContainer inventory = new SimpleContainer(GravestoneUtil.PLAYER_INVENTORY_SIZE);
-        inventory.fromTag(tag.getList("Items", Tag.TAG_COMPOUND));
+        inventory.fromTag(tag.getList("Items", TagCompatApi.TAG_COMPOUND));
         return new DeathInfo(deathTime, xp, inventory);
     }
 
