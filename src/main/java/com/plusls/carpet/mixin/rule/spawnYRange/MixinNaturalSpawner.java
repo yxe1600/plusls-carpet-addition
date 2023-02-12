@@ -1,12 +1,14 @@
 package com.plusls.carpet.mixin.rule.spawnYRange;
 
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.NaturalSpawner;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+//#if MC > 11605
+import net.minecraft.util.Mth;
+//#endif
 //#if MC > 11802
 import net.minecraft.util.RandomSource;
 //#else

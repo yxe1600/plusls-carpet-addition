@@ -5,11 +5,11 @@ import com.plusls.carpet.util.dispenser.MyFallibleItemDispenserBehavior;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -43,7 +43,7 @@ public class PotionDispenserBehavior extends MyFallibleItemDispenserBehavior {
             return itemStack;
         }
         BlockPos faceBlockPos = pointer.getPos().relative(pointer.getBlockState().getValue(DispenserBlock.FACING));
-        ServerLevel world = pointer.getLevel();
+        Level world = pointer.getLevel();
         BlockState faceBlockState = world.getBlockState(faceBlockPos);
         //#if MC > 11605
         if (faceBlockState.getBlock() instanceof AbstractCauldronBlock) {

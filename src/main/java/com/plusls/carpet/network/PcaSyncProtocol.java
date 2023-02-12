@@ -39,7 +39,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
+//#if MC <= 11502
+//$$ import net.minecraft.world.level.dimension.DimensionType;
+//#endif
+
+//#if MC > 11802
 @SuppressWarnings("removal")
+//#endif
 public class PcaSyncProtocol {
     public static final ReentrantLock lock = new ReentrantLock(true);
     public static final ReentrantLock pairLock = new ReentrantLock(true);
@@ -85,7 +91,11 @@ public class PcaSyncProtocol {
     // 传输 World 是为了通知客户端该 Entity 属于哪个 World
     public static void updateEntity(@NotNull ServerPlayer player, @NotNull Entity entity) {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        //#if MC > 11502
         buf.writeResourceLocation(entity.getCommandSenderWorld().dimension().location());
+        //#else
+        //$$ buf.writeResourceLocation(DimensionType.getName(entity.getCommandSenderWorld().dimension.getType()));
+        //#endif
         buf.writeInt(entity.getId());
         buf.writeNbt(entity.saveWithoutId(new CompoundTag()));
         ServerPlayNetworking.send(player, UPDATE_ENTITY, buf);
@@ -103,7 +113,11 @@ public class PcaSyncProtocol {
         }
 
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        //#if MC > 11502
         buf.writeResourceLocation(world.dimension().location());
+        //#else
+        //$$ buf.writeResourceLocation(DimensionType.getName(world.dimension.getType()));
+        //#endif
         buf.writeBlockPos(blockEntity.getBlockPos());
         //#if MC > 11701
         buf.writeNbt(blockEntity.saveWithoutMetadata());
@@ -201,7 +215,11 @@ public class PcaSyncProtocol {
             updateBlockEntity(player, blockEntity);
         }
 
+        //#if MC > 11502
         Pair<ResourceLocation, BlockPos> pair = new ImmutablePair<>(player.getCommandSenderWorld().dimension().location(), pos);
+        //#else
+        //$$ Pair<ResourceLocation, BlockPos> pair = new ImmutablePair<>(DimensionType.getName(player.getCommandSenderWorld().dimension.getType()), pos);
+        //#endif
         lock.lock();
         playerWatchBlockPos.put(player, pair);
         if (!blockPosWatchPlayerSet.containsKey(pair)) {
@@ -253,7 +271,11 @@ public class PcaSyncProtocol {
             PluslsCarpetAdditionReference.getLogger().debug("{} watch entity {}: {}", player.getName().getString(), entityId, entity);
             updateEntity(player, entity);
 
+            //#if MC > 11502
             Pair<ResourceLocation, Entity> pair = new ImmutablePair<>(entity.getCommandSenderWorld().dimension().location(), entity);
+            //#else
+            //$$ Pair<ResourceLocation, Entity> pair = new ImmutablePair<>(DimensionType.getName(entity.getCommandSenderWorld().dimension.getType()), entity);
+            //#endif
             lock.lock();
             playerWatchEntity.put(player, pair);
             if (!entityWatchPlayerSet.containsKey(pair)) {
@@ -282,11 +304,19 @@ public class PcaSyncProtocol {
 
     // 工具
     private static @Nullable Set<ServerPlayer> getWatchPlayerList(@NotNull Entity entity) {
+        //#if MC > 11502
         return entityWatchPlayerSet.get(getIdentifierEntityPair(entity.getCommandSenderWorld().dimension().location(), entity));
+        //#else
+        //$$ return entityWatchPlayerSet.get(getIdentifierEntityPair(DimensionType.getName(entity.getCommandSenderWorld().dimension.getType()), entity));
+        //#endif
     }
 
     private static @Nullable Set<ServerPlayer> getWatchPlayerList(@NotNull Level world, @NotNull BlockPos blockPos) {
+        //#if MC > 11502
         return blockPosWatchPlayerSet.get(getIdentifierBlockPosPair(world.dimension().location(), blockPos));
+        //#else
+        //$$ return blockPosWatchPlayerSet.get(getIdentifierBlockPosPair(DimensionType.getName(world.dimension.getType()), blockPos));
+        //#endif
     }
 
     public static boolean syncEntityToClient(@NotNull Entity entity) {

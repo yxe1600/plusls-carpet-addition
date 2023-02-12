@@ -92,8 +92,10 @@ public abstract class MixinPotionItem extends Item {
             }
             //#if MC > 11802
             cir.setReturnValue(InteractionResult.sidedSuccess(level.isClientSide));
-            //#else
+            //#elseif MC > 11502
             //$$ return InteractionResult.sidedSuccess(level.isClientSide);
+            //#else
+            //$$ return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.PASS;
             //#endif
         }
         //#if MC < 11900

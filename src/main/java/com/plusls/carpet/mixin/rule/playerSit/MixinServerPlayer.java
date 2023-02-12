@@ -14,15 +14,21 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ServerPlayer.class)
-public abstract class MixinServerPlayerEntity extends Player {
+public abstract class MixinServerPlayer extends Player {
+    //#if MC > 11502
+    public MixinServerPlayer(Level world, BlockPos pos, float yaw, GameProfile gameProfile) {
+        super(world, pos, yaw, gameProfile);
+    }
+    //#else
+    //$$ public MixinServerPlayer(Level level, GameProfile gameProfile) {
+    //$$     super(level, gameProfile);
+    //$$ }
+    //#endif
+
     @Shadow
     public ServerGamePacketListenerImpl connection;
     private int pca$sneakTimes = 0;
     private long pca$lastSneakTime = 0;
-
-    public MixinServerPlayerEntity(Level world, BlockPos pos, float yaw, GameProfile gameProfile) {
-        super(world, pos, yaw, gameProfile);
-    }
 
     @Override
     public void setShiftKeyDown(boolean sneaking) {

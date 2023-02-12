@@ -1,6 +1,8 @@
 package com.plusls.carpet;
 
 import top.hendrixshen.magiclib.api.rule.annotation.Rule;
+import top.hendrixshen.magiclib.dependency.annotation.Dependencies;
+import top.hendrixshen.magiclib.dependency.annotation.Dependency;
 
 public class PluslsCarpetAdditionSettings {
     public static final String CREATIVE = "creative";
@@ -151,7 +153,13 @@ public class PluslsCarpetAdditionSettings {
     @Rule(
             categories = {
                     FEATURE
-            }
+            },
+            dependencies = @Dependencies(
+                    and = @Dependency(
+                            value = "minecraft",
+                            versionPredicate = ">1.15.2"
+                    )
+            )
     )
     public static boolean renewableNetheriteEquip = false;
 

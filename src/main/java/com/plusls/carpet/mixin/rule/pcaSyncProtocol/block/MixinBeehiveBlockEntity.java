@@ -75,8 +75,10 @@ public abstract class MixinBeehiveBlockEntity extends BlockEntity {
     )
     //#if MC > 11605
     public void postLoad(CompoundTag compoundTag, CallbackInfo ci) {
-    //#else
+    //#elseif MC > 11502
     //$$ public void postLoad(BlockState blockState, CompoundTag compoundTag, CallbackInfo ci) {
+    //#else
+    //$$ public void postLoad(CompoundTag compoundTag, CallbackInfo ci) {
     //#endif
         if (PluslsCarpetAdditionSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             PluslsCarpetAdditionReference.getLogger().debug("update BeehiveBlockEntity: {}", this.worldPosition);

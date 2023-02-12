@@ -1,28 +1,35 @@
 package com.plusls.carpet.mixin.rule.renewableNetherite;
 
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.Level;
+import org.spongepowered.asm.mixin.Mixin;
+import top.hendrixshen.magiclib.dependency.annotation.Dependencies;
+import top.hendrixshen.magiclib.dependency.annotation.Dependency;
+
+//#if MC > 11502
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//#endif
 
+@Dependencies(and = @Dependency(value = "minecraft", versionPredicate = ">1.15.2"))
 @Mixin(ItemEntity.class)
 public abstract class MixinItemEntity extends Entity {
     public MixinItemEntity(EntityType<?> type, Level world) {
         super(type, world);
     }
 
+    //#if MC > 11502
     @Nullable
     private static ItemStack pca$getNetheriteResult(@NotNull ItemStack stack) {
         Item newItem;
@@ -94,4 +101,5 @@ public abstract class MixinItemEntity extends Entity {
             }
         }
     }
+    //#endif
 }

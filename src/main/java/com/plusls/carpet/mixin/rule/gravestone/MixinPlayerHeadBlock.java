@@ -8,6 +8,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.PlayerHeadBlock;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -35,8 +36,12 @@ public abstract class MixinPlayerHeadBlock extends SkullBlock {
                 player.awardStat(Stats.BLOCK_MINED.get(this));
                 player.causeFoodExhaustion(0.005F);
                 // Drop item
+                //#if MC > 11502
                 for (ItemStack itemStack : deathInfo.inventory.removeAllItems()) {
-                    popResource(level, pos, itemStack);
+                //#else
+                //$$ for (ItemStack itemStack : deathInfo.inventory) {
+                //#endif
+                    Block.popResource(level, pos, itemStack);
                 }
 
                 // Drop xp

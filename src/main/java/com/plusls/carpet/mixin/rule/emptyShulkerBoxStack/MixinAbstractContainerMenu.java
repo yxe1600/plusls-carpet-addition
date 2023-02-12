@@ -34,7 +34,11 @@ public class MixinAbstractContainerMenu {
     }
 
     @Redirect(
+            //#if MC > 11502
             method = "doClick",
+            //#else
+            //$$ method = "clicked",
+            //#endif
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/item/ItemStack;getMaxStackSize()I",

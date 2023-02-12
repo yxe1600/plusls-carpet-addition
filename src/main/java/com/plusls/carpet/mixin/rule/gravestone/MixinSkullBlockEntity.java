@@ -40,8 +40,10 @@ public class MixinSkullBlockEntity implements MySkullBlockEntity {
     )
     //#if MC > 11605
     private void postLoad(@NotNull CompoundTag compoundTag, CallbackInfo ci) {
-    //#else
+    //#elseif MC > 11502
     //$$ private void postLoad(BlockState blockState, @NotNull CompoundTag compoundTag, CallbackInfo ci) {
+    //#else
+    //$$ private void postLoad(@NotNull CompoundTag compoundTag, CallbackInfo ci) {
     //#endif
         if (compoundTag.contains("DeathInfo", TagCompatApi.TAG_COMPOUND)) {
             this.pca$deathInfo = DeathInfo.fromTag(compoundTag.getCompound("DeathInfo"));

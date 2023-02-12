@@ -42,9 +42,17 @@ public class MixinBlockRotator {
                     !player.getOffhandItem().isEmpty()) {
                 return;
             }
+            //#if MC > 11502
             CarpetSettings.impendingFillSkipUpdates.set(true);
+            //#else
+            //$$ CarpetSettings.impendingFillSkipUpdates = true;
+            //#endif
             boolean ret = BlockRotator.flipBlock(state, level, player, hand, hit);
+            //#if MC > 11502
             CarpetSettings.impendingFillSkipUpdates.set(false);
+            //#else
+            //$$ CarpetSettings.impendingFillSkipUpdates = false;
+            //#endif
             if (ret) {
                 FlipCooldown.setCoolDown(player, level.getGameTime());
             }

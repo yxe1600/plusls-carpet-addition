@@ -14,8 +14,10 @@ public class PluslsCarpetAddition implements ModInitializer {
     public void onInitialize() {
         WrapperSettingManager.register(PluslsCarpetAdditionReference.getModIdentifier(), PluslsCarpetAdditionExtension.getSettingsManager());
         CarpetServer.manageExtension(new PluslsCarpetAdditionExtension());
+        //#if MC > 11502
         GravestoneUtil.init();
         SleepUtil.init();
+        //#endif
         IronIngotDispenserBehavior.init();
         GlassBottleDispenserBehavior.init();
         PotionDispenserBehavior.init();

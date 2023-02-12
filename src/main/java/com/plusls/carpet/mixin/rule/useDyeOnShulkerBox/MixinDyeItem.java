@@ -57,7 +57,11 @@ public abstract class MixinDyeItem extends Item {
                     context.getItemInHand().shrink(1);
                 }
             }
+            //#if MC > 11502
             return InteractionResult.sidedSuccess(level.isClientSide);
+            //#else
+            //$$ return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.PASS;
+            //#endif
         }
         return InteractionResult.PASS;
     }
