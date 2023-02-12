@@ -105,7 +105,11 @@ public class PcaSyncProtocol {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeResourceLocation(world.dimension().location());
         buf.writeBlockPos(blockEntity.getBlockPos());
+        //#if MC > 11701
         buf.writeNbt(blockEntity.saveWithoutMetadata());
+        //#else
+        //$$ buf.writeNbt(new CompoundTag());
+        //#endif
         ServerPlayNetworking.send(player, UPDATE_BLOCK_ENTITY, buf);
     }
 

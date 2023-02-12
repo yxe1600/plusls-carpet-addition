@@ -11,6 +11,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//#if MC <= 11701
+//$$ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//#endif
+
 @Mixin(SkullBlockEntity.class)
 public class MixinSkullBlockEntity implements MySkullBlockEntity {
     private DeathInfo pca$deathInfo;
@@ -38,14 +42,22 @@ public class MixinSkullBlockEntity implements MySkullBlockEntity {
     }
 
     @Inject(
+            //#if MC > 11701
             method = "saveAdditional",
+            //#else
+            //$$ method = "save",
+            //#endif
             at = @At(
                     value = "RETURN"
             )
     )
-    private void postSaveAdditional(CompoundTag nbt, CallbackInfo ci) {
+    //#if MC > 11701
+    private void postSaveAdditional(CompoundTag compoundTag, CallbackInfo ci) {
+    //#else
+    //$$ private void postSave(CompoundTag compoundTag, CallbackInfoReturnable<CompoundTag> cir) {
+    //#endif
         if (this.pca$deathInfo != null) {
-            nbt.put("DeathInfo", this.pca$deathInfo.toTag());
+            compoundTag.put("DeathInfo", this.pca$deathInfo.toTag());
         }
     }
 }

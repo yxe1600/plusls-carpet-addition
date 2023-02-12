@@ -27,7 +27,11 @@ public abstract class MixinFlowingFluid extends Fluid {
         if (cir.getReturnValue() && state.getBlock() instanceof PlayerHeadBlock) {
             BlockEntity blockEntity = blockGetter.getBlockEntity(pos);
             if (blockEntity != null) {
+                //#if MC > 11701
                 CompoundTag nbt = blockEntity.saveWithoutMetadata();
+                //#else
+                //$$ CompoundTag nbt = blockEntity.save(new CompoundTag());
+                //#endif
                 if (nbt.contains("DeathInfo")) {
                     cir.setReturnValue(false);
                 }

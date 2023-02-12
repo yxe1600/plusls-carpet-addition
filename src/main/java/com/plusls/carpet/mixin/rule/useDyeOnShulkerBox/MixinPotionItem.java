@@ -19,13 +19,17 @@ import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
+
+import java.util.Objects;
+
 //#if MC > 11802
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 //#endif
-
-import java.util.Objects;
+//#if MC <= 11701
+//$$ import net.minecraft.nbt.CompoundTag;
+//#endif
 
 @Mixin(PotionItem.class)
 public abstract class MixinPotionItem extends Item {
@@ -73,7 +77,11 @@ public abstract class MixinPotionItem extends Item {
                     ShulkerBoxBlockEntity newBlockEntity = (ShulkerBoxBlockEntity) level.getBlockEntity(pos);
                     assert blockEntity != null;
                     assert newBlockEntity != null;
+                    //#if MC > 11701
                     newBlockEntity.loadFromTag(blockEntity.saveWithoutMetadata());
+                    //#else
+                    //$$ newBlockEntity.loadFromTag(new CompoundTag());
+                    //#endif
                     newBlockEntity.setCustomName(blockEntity.getCustomName());
                     newBlockEntity.setChanged();
                     if (!player.isCreative()) {

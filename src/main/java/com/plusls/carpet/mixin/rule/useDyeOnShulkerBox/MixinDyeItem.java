@@ -16,6 +16,10 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+//#if MC <= 11701
+//$$ import net.minecraft.nbt.CompoundTag;
+//#endif
+
 @Mixin(DyeItem.class)
 public abstract class MixinDyeItem extends Item {
     public MixinDyeItem(Properties settings) {
@@ -43,7 +47,11 @@ public abstract class MixinDyeItem extends Item {
                     ShulkerBoxBlockEntity newBlockEntity = (ShulkerBoxBlockEntity) level.getBlockEntity(pos);
                     assert blockEntity != null;
                     assert newBlockEntity != null;
+                    //#if MC > 11701
                     newBlockEntity.loadFromTag(blockEntity.saveWithoutMetadata());
+                    //#else
+                    //$$ newBlockEntity.loadFromTag(new CompoundTag());
+                    //#endif
                     newBlockEntity.setCustomName(blockEntity.getCustomName());
                     newBlockEntity.setChanged();
                     context.getItemInHand().shrink(1);
