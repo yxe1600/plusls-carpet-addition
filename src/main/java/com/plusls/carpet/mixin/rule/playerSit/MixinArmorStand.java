@@ -2,7 +2,6 @@ package com.plusls.carpet.mixin.rule.playerSit;
 
 import com.plusls.carpet.util.rule.playerSit.SitEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,6 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import top.hendrixshen.magiclib.compat.minecraft.nbt.TagCompatApi;
 
 @Mixin(ArmorStand.class)
 public abstract class MixinArmorStand extends LivingEntity implements SitEntity {
@@ -66,7 +66,7 @@ public abstract class MixinArmorStand extends LivingEntity implements SitEntity 
             )
     )
     private void postReadAdditionalSaveData(@NotNull CompoundTag nbt, CallbackInfo ci) {
-        if (nbt.contains("SitEntity", Tag.TAG_BYTE)) {
+        if (nbt.contains("SitEntity", TagCompatApi.TAG_BYTE)) {
             this.pca$sitEntity = nbt.getBoolean("SitEntity");
         }
     }

@@ -11,6 +11,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//#if MC <= 11404
+//$$ import net.minecraft.world.level.Level;
+//#endif
 //#if MC > 11802
 import net.minecraft.util.RandomSource;
 //#else
@@ -32,8 +35,10 @@ public abstract class MixinLeavesBlock extends Block {
     )
     //#if MC > 11802
     private void postScheduledTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random, CallbackInfo ci) {
-    //#else
+    //#elseif MC > 11404
     //$$ private void postScheduledTick(BlockState state, ServerLevel level, BlockPos pos, Random random, CallbackInfo ci) {
+    //#else
+    //$$ private void postScheduledTick(BlockState state, Level level, BlockPos pos, Random random, CallbackInfo ci) {
     //#endif
         if (PluslsCarpetAdditionSettings.quickLeafDecay) {
             this.randomTick(state, level, pos, random);

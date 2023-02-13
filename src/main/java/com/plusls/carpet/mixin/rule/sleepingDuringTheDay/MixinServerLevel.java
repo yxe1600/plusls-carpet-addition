@@ -1,29 +1,48 @@
 package com.plusls.carpet.mixin.rule.sleepingDuringTheDay;
 
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.storage.WritableLevelData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+//#if MC > 11502
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.storage.WritableLevelData;
 import java.util.function.Supplier;
+//#else
+//$$ import net.minecraft.world.level.chunk.ChunkSource;
+//$$ import net.minecraft.world.level.dimension.Dimension;
+//$$ import net.minecraft.world.level.storage.LevelData;
+//$$
+//$$ import java.util.function.BiFunction;
+//#endif
+//#if MC > 11701
+import net.minecraft.core.Holder;
+//#endif
 
 @Mixin(ServerLevel.class)
-public abstract class MixinServerLevel extends Level implements WorldGenLevel {
+public abstract class MixinServerLevel extends Level {
+    //#if MC > 11802
     protected MixinServerLevel(WritableLevelData properties, ResourceKey<Level> registryRef, Holder<DimensionType> dimension, Supplier<ProfilerFiller> profiler, boolean isClient, boolean debugWorld, long seed, int maxChainedNeighborUpdates) {
-        //#if MC > 11802
         super(properties, registryRef, dimension, profiler, isClient, debugWorld, seed, maxChainedNeighborUpdates);
-        //#else
-        //$$ super(properties, registryRef, dimension, profiler, isClient, debugWorld, seed);
-        //#endif
     }
+    //#elseif MC > 11701
+    //$$ protected MixinServerLevel(WritableLevelData properties, ResourceKey<Level> registryRef, Holder<DimensionType> dimension, Supplier<ProfilerFiller> profiler, boolean isClient, boolean debugWorld, long seed) {
+    //$$     super(properties, registryRef, dimension, profiler, isClient, debugWorld, seed);
+    //$$ }
+    //#elseif MC > 11502
+    //$$ protected MixinServerLevel(WritableLevelData properties, ResourceKey<Level> registryRef, DimensionType dimension, Supplier<ProfilerFiller> profiler, boolean isClient, boolean debugWorld, long seed) {
+    //$$     super(properties, registryRef, dimension, profiler, isClient, debugWorld, seed);
+    //$$ }
+    //#else
+    //$$ protected MixinServerLevel(LevelData levelData, DimensionType dimensionType, BiFunction<Level, Dimension, ChunkSource> biFunction, ProfilerFiller profilerFiller, boolean bl) {
+    //$$     super(levelData, dimensionType, biFunction, profilerFiller, bl);
+    //$$ }
+    //#endif
 
     // 根据当前时间设置夜晚和白天
     @Redirect(

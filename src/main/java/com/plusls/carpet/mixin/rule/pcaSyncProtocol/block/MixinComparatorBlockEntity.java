@@ -12,9 +12,15 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ComparatorBlockEntity.class)
 public abstract class MixinComparatorBlockEntity extends BlockEntity {
-    public MixinComparatorBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
+    //#if MC > 11605
+    protected MixinComparatorBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
     }
+    //#else
+    //$$ protected MixinComparatorBlockEntity(BlockEntityType<?> blockEntityType) {
+    //$$     super(blockEntityType);
+    //$$ }
+    //#endif
 
     @Override
     public void setChanged() {

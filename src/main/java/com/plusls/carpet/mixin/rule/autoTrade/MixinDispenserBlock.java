@@ -5,7 +5,6 @@ import com.plusls.carpet.util.rule.autoTrade.MyVillagerEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSourceImpl;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.AbstractVillager;
@@ -26,6 +25,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+
+//#if MC > 11502
+import net.minecraft.server.level.ServerLevel;
+//#else
+//$$ import net.minecraft.world.level.Level;
+//#endif
 
 @Mixin(DispenserBlock.class)
 public class MixinDispenserBlock {
@@ -62,11 +67,15 @@ public class MixinDispenserBlock {
     }
 
     @Inject(method = "dispenseFrom", at = @At(value = "HEAD"), cancellable = true)
-    private void autoTrade(ServerLevel serverLevel, BlockPos blockPos, CallbackInfo ci) {
+    //#if MC > 11502
+    private void autoTrade(ServerLevel level, BlockPos blockPos, CallbackInfo ci) {
+    //#else
+    //$$ private void autoTrade(Level level, BlockPos blockPos, CallbackInfo ci) {
+    //#endif
         if (!PluslsCarpetAdditionSettings.autoTrade) {
             return;
         }
-        BlockState state = serverLevel.getBlockState(blockPos.below());
+        BlockState state = level.getBlockState(blockPos.below());
         boolean tradeAll;
         if (state.is(Blocks.EMERALD_BLOCK)) {
             tradeAll = false;
@@ -75,8 +84,8 @@ public class MixinDispenserBlock {
         } else {
             return;
         }
-        BlockPos faceBlockPos = blockPos.relative(serverLevel.getBlockState(blockPos).getValue(DispenserBlock.FACING));
-        List<AbstractVillager> villagerList = serverLevel.getEntitiesOfClass(AbstractVillager.class,
+        BlockPos faceBlockPos = blockPos.relative(level.getBlockState(blockPos).getValue(DispenserBlock.FACING));
+        List<AbstractVillager> villagerList = level.getEntitiesOfClass(AbstractVillager.class,
                 new AABB(faceBlockPos), Entity::isAlive);
         if (villagerList.size() < 1) {
             return;
@@ -87,7 +96,7 @@ public class MixinDispenserBlock {
             return;
         }
 
-        int tradeId = serverLevel.getBestNeighborSignal(blockPos);
+        int tradeId = level.getBestNeighborSignal(blockPos);
         if (tradeId == 0) {
             return;
         }
@@ -97,11 +106,12 @@ public class MixinDispenserBlock {
         ItemStack firstDepleteItem = firstItemStack.copy();
         ItemStack secondDepleteItem = secondItemStack.copy();
 
-        BlockSourceImpl blockPointerImpl = new BlockSourceImpl(serverLevel, blockPos);
-        BlockEntity blockEntity = serverLevel.getBlockEntity(blockPos);
-        if (!(blockEntity instanceof DispenserBlockEntity dispenserBlockEntity)) {
+        BlockSourceImpl blockPointerImpl = new BlockSourceImpl(level, blockPos);
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        if (!(blockEntity instanceof DispenserBlockEntity)) {
             return;
         }
+        DispenserBlockEntity dispenserBlockEntity = (DispenserBlockEntity) blockEntity;
         boolean success = false;
         while (!offer.isOutOfStock()) {
             ItemStack firstInventoryItemStack = pca$getItemFromInventory(firstItemStack, dispenserBlockEntity);
@@ -117,9 +127,9 @@ public class MixinDispenserBlock {
                 ItemStack outputItemStack = offer.assemble();
                 pca$itemDispenserBehavior.dispense(blockPointerImpl, outputItemStack);
                 // make villager happy ~
-                serverLevel.broadcastEntityEvent(merchantEntity, (byte) 14);
-                if (merchantEntity instanceof MyVillagerEntity myVillagerEntity) {
-                    myVillagerEntity.pca$tradeWithoutPlayer(offer);
+                level.broadcastEntityEvent(merchantEntity, (byte) 14);
+                if (merchantEntity instanceof MyVillagerEntity) {
+                    ((MyVillagerEntity) (merchantEntity)).pca$tradeWithoutPlayer(offer);
                 }
                 success = true;
             } else {

@@ -50,12 +50,21 @@ public class GlassBottleDispenserBehavior extends MyFallibleItemDispenserBehavio
         int currentXp = 0;
         // 运算次数不多，所以多循环几次也无所谓（放弃思考.jpg
         for (ExperienceOrb xpEntity : xpEntityList) {
+            //#if MC > 11605
             for (; xpEntity.count > 0; --xpEntity.count) {
+            //#else
+            //$$ for (; xpEntity.value > 0; --xpEntity.value) {
+            //#endif
                 currentXp += xpEntity.getValue();
+                // 有残留经验也无所谓，直接把经验球销毁
+                // 付出点代价很合理
+                //#if MC > 11605
                 if (xpEntity.count == 1) {
-                    // 有残留经验也无所谓，直接把经验球销毁
-                    // 付出点代价很合理
                     xpEntity.discard();
+                //#else
+                //$$ if (xpEntity.value == 1) {
+                //$$     xpEntity.remove();
+                //#endif
                 }
                 if (currentXp >= 8) {
                     setSuccess(true);

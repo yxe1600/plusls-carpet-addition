@@ -3,8 +3,6 @@ package com.plusls.carpet.mixin.rule.pcaSyncProtocol.entity;
 import com.plusls.carpet.PluslsCarpetAdditionReference;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
-import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.AbstractMinecartContainer;
@@ -15,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractMinecartContainer.class)
-public abstract class MixinAbstractMinecartContainer extends AbstractMinecart implements Container, MenuProvider {
+public abstract class MixinAbstractMinecartContainer extends AbstractMinecart {
     protected MixinAbstractMinecartContainer(EntityType<?> entityType, Level world) {
         super(entityType, world);
     }

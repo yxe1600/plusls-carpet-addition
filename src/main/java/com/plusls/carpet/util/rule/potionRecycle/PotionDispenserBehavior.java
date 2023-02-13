@@ -5,17 +5,22 @@ import com.plusls.carpet.util.dispenser.MyFallibleItemDispenserBehavior;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+
+//#if MC > 11605
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.gameevent.GameEvent;
+//#else
+//$$ import net.minecraft.world.level.block.CauldronBlock;
+//#endif
 
 public class PotionDispenserBehavior extends MyFallibleItemDispenserBehavior {
 
@@ -38,8 +43,9 @@ public class PotionDispenserBehavior extends MyFallibleItemDispenserBehavior {
             return itemStack;
         }
         BlockPos faceBlockPos = pointer.getPos().relative(pointer.getBlockState().getValue(DispenserBlock.FACING));
-        ServerLevel world = pointer.getLevel();
+        Level world = pointer.getLevel();
         BlockState faceBlockState = world.getBlockState(faceBlockPos);
+        //#if MC > 11605
         if (faceBlockState.getBlock() instanceof AbstractCauldronBlock) {
             setSuccess(true);
             if (faceBlockState.getBlock() == Blocks.WATER_CAULDRON) {
@@ -60,6 +66,22 @@ public class PotionDispenserBehavior extends MyFallibleItemDispenserBehavior {
                 return new ItemStack(Items.GLASS_BOTTLE);
             }
         }
+        //#else
+        //$$ if (faceBlockState.getBlock() instanceof CauldronBlock) {
+        //$$     setSuccess(true);
+        //$$     if (faceBlockState.getBlock() == Blocks.CAULDRON) {
+        //$$         int level = faceBlockState.getValue(CauldronBlock.LEVEL);
+        //$$         if (level == 3) {
+        //$$             return itemStack;
+        //$$         } else {
+        //$$             world.setBlockAndUpdate(faceBlockPos, faceBlockState.setValue(CauldronBlock.LEVEL, level + 1));
+        //$$             world.playSound(null, faceBlockPos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+        //$$             return new ItemStack(Items.GLASS_BOTTLE);
+        //$$
+        //$$         }
+        //$$     }
+        //$$ }
+        //#endif
         return itemStack;
     }
 }

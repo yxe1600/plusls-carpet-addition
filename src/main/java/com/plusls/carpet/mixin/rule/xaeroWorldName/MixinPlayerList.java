@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 
 @Mixin(PlayerList.class)
@@ -31,7 +32,8 @@ public class MixinPlayerList {
         ResourceLocation xaerominimap = new ResourceLocation("xaerominimap", "main");
 
         CRC32 crc = new CRC32();
-        crc.update(PluslsCarpetAdditionSettings.xaeroWorldName.getBytes());
+        byte[] bytes = PluslsCarpetAdditionSettings.xaeroWorldName.getBytes(StandardCharsets.UTF_8);
+        crc.update(bytes, 0, bytes.length);
         ByteBuf buf = Unpooled.buffer();
         buf.writeByte(0);
         buf.writeInt((int) crc.getValue());

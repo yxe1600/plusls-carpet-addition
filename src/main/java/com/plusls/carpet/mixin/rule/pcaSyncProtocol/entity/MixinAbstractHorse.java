@@ -6,8 +6,6 @@ import com.plusls.carpet.network.PcaSyncProtocol;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerListener;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.PlayerRideableJumping;
-import net.minecraft.world.entity.Saddleable;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.level.Level;
@@ -17,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractHorse.class)
-public abstract class MixinAbstractHorse extends Animal implements ContainerListener, PlayerRideableJumping, Saddleable {
+public abstract class MixinAbstractHorse extends Animal implements ContainerListener {
     protected MixinAbstractHorse(EntityType<? extends Animal> entityType, Level world) {
         super(entityType, world);
     }

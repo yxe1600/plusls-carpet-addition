@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractVillager.class)
-public abstract class MixinAbstractVillager extends AgeableMob implements Npc, Merchant, ContainerListener {
+public abstract class MixinAbstractVillager extends AgeableMob implements ContainerListener {
     @Final
     @Shadow
     private SimpleContainer inventory;

@@ -3,10 +3,6 @@ package com.plusls.carpet.mixin.rule.playerOperationLimiter;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.util.rule.playerOperationLimiter.SafeServerPlayerEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-//#if MC <= 11802
-//$$ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
-//#endif
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -16,6 +12,15 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+//#if MC > 11502
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+//#else
+//$$ import net.minecraft.network.protocol.game.ClientboundBlockBreakAckPacket;
+//#endif
+//#if MC <= 11802
+//$$ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+//#endif
 
 @Mixin(ServerPlayerGameMode.class)
 public abstract class MixinServerPlayerGameMode {
@@ -44,16 +49,28 @@ public abstract class MixinServerPlayerGameMode {
     )
     //#if MC > 11802
     private void checkOperationCountPerTick(BlockPos pos, int sequence, String reason, CallbackInfo ci) {
-    //#else
+    //#elseif MC > 11404
     //$$ private void checkOperationCountPerTick(BlockPos pos, ServerboundPlayerActionPacket.Action action, String reason, CallbackInfo ci) {
+    //#else
+    //$$ private void checkOperationCountPerTick(BlockPos pos, ServerboundPlayerActionPacket.Action action, CallbackInfo ci) {
     //#endif
+        //#if MC > 11802
         if (!PluslsCarpetAdditionSettings.playerOperationLimiter || !reason.equals(pca$instaMineReason)) {
+        //#else
+        //$$ if (!PluslsCarpetAdditionSettings.playerOperationLimiter) {
+        //#endif
             return;
         }
         SafeServerPlayerEntity safeServerPlayerEntity = (SafeServerPlayerEntity) player;
         safeServerPlayerEntity.pca$addInstaBreakCountPerTick();
         if (!safeServerPlayerEntity.pca$allowOperation()) {
+            //#if MC > 11502
             this.player.connection.send(new ClientboundBlockUpdatePacket(pos, this.level.getBlockState(pos)));
+            //#elseif MC > 11404
+            //$$ this.player.connection.send(new ClientboundBlockBreakAckPacket(pos, this.level.getBlockState(pos), action, false, reason));
+            //#else
+            //$$ this.player.connection.send(new ClientboundBlockBreakAckPacket(pos, this.level.getBlockState(pos), action, false));
+            //#endif
             //#if MC > 11802
             this.debugLogging(pos, false, sequence, reason);
             //#endif

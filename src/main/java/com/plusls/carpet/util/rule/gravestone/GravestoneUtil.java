@@ -2,7 +2,6 @@ package com.plusls.carpet.util.rule.gravestone;
 
 import com.plusls.carpet.PluslsCarpetAdditionReference;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.TickTask;
@@ -18,22 +17,34 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+
+//#if MC > 11502
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+//#else
+//$$ import net.minecraft.world.level.dimension.DimensionType;
+//$$
+//$$ import java.util.ArrayList;
+//#endif
 
 public class GravestoneUtil {
     public static final int NETHER_BEDROCK_MAX_Y = 127;
     public static final int SEARCH_RANGE = 5;
     public static final int PLAYER_INVENTORY_SIZE = 41;
 
+    //#if MC > 11502
     public static void init() {
         ServerPlayerEvents.ALLOW_DEATH.register((player, damageSource, damageAmount) -> {
             deathHandle(player);
             return true;
         });
     }
+    //#endif
 
-    private static void deathHandle(ServerPlayer player) {
+    public static void deathHandle(@NotNull ServerPlayer player) {
         Level world = player.level;
         if (PluslsCarpetAdditionSettings.gravestone && !world.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
             for (InteractionHand hand : InteractionHand.values()) {
@@ -43,6 +54,7 @@ public class GravestoneUtil {
                 }
             }
             player.destroyVanishingCursedItems();
+            //#if MC > 11502
             SimpleContainer inventory = new SimpleContainer(PLAYER_INVENTORY_SIZE);
             for (ItemStack itemStack : player.getInventory().items) {
                 inventory.addItem(itemStack);
@@ -55,6 +67,12 @@ public class GravestoneUtil {
             for (ItemStack itemStack : player.getInventory().offhand) {
                 inventory.addItem(itemStack);
             }
+            //#else
+            //$$ ArrayList<ItemStack> inventory = new ArrayList<>();
+            //$$ inventory.addAll(player.inventory.items);
+            //$$ inventory.addAll(player.inventory.armor);
+            //$$ inventory.addAll(player.inventory.offhand);
+            //#endif
             int xp = player.totalExperience / 2;
             player.getInventory().clearContent();
 
@@ -70,8 +88,12 @@ public class GravestoneUtil {
     }
 
     // find pos to place gravestone
-    public static BlockPos findGravePos(ServerPlayer player) {
+    public static BlockPos findGravePos(@NotNull ServerPlayer player) {
+        //#if MC > 11502
         BlockPos.MutableBlockPos playerPos = new BlockPos((player.position())).mutable();
+        //#else
+        //$$ BlockPos.MutableBlockPos playerPos = new BlockPos.MutableBlockPos(new BlockPos(player.position()));
+        //#endif
         playerPos.setY(clampY(player, playerPos.getY()));
         if (canPlaceGrave(player, playerPos)) {
             return playerPos;
@@ -100,9 +122,13 @@ public class GravestoneUtil {
     }
 
     // make sure to spawn graves on the suitable place
-    public static int clampY(ServerPlayer player, int y) {
+    public static int clampY(@NotNull ServerPlayer player, int y) {
         //don't spawn on nether ceiling, unless the player is already there.
+        //#if MC > 11502
         if (player.level.dimension() == Level.NETHER && y < NETHER_BEDROCK_MAX_Y) {
+        //#else
+        //$$ if (player.dimension == DimensionType.NETHER && y < NETHER_BEDROCK_MAX_Y) {
+        //#endif
             //clamp to 1 -- don't spawn graves the layer right above the void, so players can actually recover their items.
             return Mth.clamp(y, player.level.getMinBuildHeight() + 1, NETHER_BEDROCK_MAX_Y - 1);
         } else {
@@ -111,7 +137,7 @@ public class GravestoneUtil {
     }
 
 
-    public static boolean canPlaceGrave(ServerPlayer player, BlockPos pos) {
+    public static boolean canPlaceGrave(@NotNull ServerPlayer player, BlockPos pos) {
 
         BlockState state = player.level.getBlockState(pos);
         if (pos.getY() <= player.level.getMinBuildHeight() + 1 || pos.getY() >= player.level.getMaxBuildHeight() - 1) {
@@ -126,7 +152,7 @@ public class GravestoneUtil {
 
     // players are blown up
     // reduce y pos
-    public static BlockPos drop(ServerPlayer player, BlockPos pos) {
+    public static BlockPos drop(@NotNull ServerPlayer player, BlockPos pos) {
         BlockPos.MutableBlockPos searchPos = new BlockPos.MutableBlockPos().set(pos);
         int i = 0;
         for (int y = pos.getY() - 1; y > player.level.getMinBuildHeight() + 1 && i < 10; y--) {
@@ -140,7 +166,8 @@ public class GravestoneUtil {
         return pos;
     }
 
-    public static Runnable placeGraveRunnable(Level world, BlockPos pos, DeathInfo deathInfo, ServerPlayer player) {
+    @Contract(pure = true)
+    public static @NotNull Runnable placeGraveRunnable(Level world, BlockPos pos, DeathInfo deathInfo, ServerPlayer player) {
         return () -> {
             BlockState graveBlock = Blocks.PLAYER_HEAD.defaultBlockState();
 
