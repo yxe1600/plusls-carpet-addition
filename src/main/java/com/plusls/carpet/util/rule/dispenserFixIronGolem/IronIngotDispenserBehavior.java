@@ -42,7 +42,9 @@ public class IronIngotDispenserBehavior extends MyFallibleItemDispenserBehavior 
                 continue;
             }
             float g = 1.0F + (ironGolemEntity.getRandom().nextFloat() - ironGolemEntity.getRandom().nextFloat()) * 0.2F;
+            //#if MC > 11404
             ironGolemEntity.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0F, g);
+            //#endif
             itemStack.shrink(1);
             setSuccess(true);
             return itemStack;

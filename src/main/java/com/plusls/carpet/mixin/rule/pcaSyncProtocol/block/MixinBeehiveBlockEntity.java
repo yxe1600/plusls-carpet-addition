@@ -1,5 +1,6 @@
 package com.plusls.carpet.mixin.rule.pcaSyncProtocol.block;
 
+//#if MC > 11404
 import com.plusls.carpet.PluslsCarpetAdditionReference;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
@@ -10,7 +11,6 @@ import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -22,9 +22,23 @@ import java.util.List;
 import net.minecraft.world.level.Level;
 import java.util.Objects;
 //#endif
+//#else
+//$$ import net.minecraft.server.MinecraftServer;
+//#endif
 
+import org.spongepowered.asm.mixin.Mixin;
+import top.hendrixshen.magiclib.dependency.annotation.Dependencies;
+import top.hendrixshen.magiclib.dependency.annotation.Dependency;
+
+@Dependencies(and = @Dependency(value = "minecraft", versionPredicate = ">1.14.4"))
+//#if MC > 11404
 @Mixin(BeehiveBlockEntity.class)
 public abstract class MixinBeehiveBlockEntity extends BlockEntity {
+//#else
+//$$ @Mixin(MinecraftServer.class)
+//$$ public class MixinBeehiveBlockEntity {
+//#endif
+    //#if MC > 11404
     //#if MC > 11605
     protected MixinBeehiveBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
@@ -102,4 +116,5 @@ public abstract class MixinBeehiveBlockEntity extends BlockEntity {
             PluslsCarpetAdditionReference.getLogger().debug("update BeehiveBlockEntity: {}", this.worldPosition);
         }
     }
+    //#endif
 }

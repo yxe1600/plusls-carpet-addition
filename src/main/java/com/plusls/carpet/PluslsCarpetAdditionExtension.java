@@ -46,21 +46,17 @@ public class PluslsCarpetAdditionExtension implements CarpetExtensionCompatApi {
                 Configurator.setLevel(PluslsCarpetAdditionReference.getModIdentifier(), MiscUtil.cast(rule.getValue()) ? Level.DEBUG : Level.INFO);
             }
         });
-    }
-
-    @Override
-    public void onServerLoaded(MinecraftServer server) {
-        PluslsCarpetAdditionExtension.server = server;
-    }
-
-    @Override
-    public void onServerLoadedWorlds(MinecraftServer server) {
         PcaSyncProtocol.init();
         FlipCooldown.init();
         if (PluslsCarpetAdditionSettings.pcaDebug) {
             PluslsCarpetAdditionReference.getLogger().getName();
             Configurator.setLevel(PluslsCarpetAdditionReference.getModIdentifier(), Level.DEBUG);
         }
+    }
+
+    @Override
+    public void onServerLoaded(MinecraftServer server) {
+        PluslsCarpetAdditionExtension.server = server;
     }
 
     @Override

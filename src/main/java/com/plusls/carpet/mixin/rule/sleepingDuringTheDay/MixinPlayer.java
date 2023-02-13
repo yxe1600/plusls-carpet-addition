@@ -21,13 +21,25 @@ public class MixinPlayer {
     //$$         method = "tick",
     //$$         at = @At(
     //$$                 value = "INVOKE",
+    //#if MC > 11404
     //$$                 target = "Lnet/minecraft/world/entity/player/Player;stopSleepInBed(ZZ)V",
+    //#else
+    //$$                 target = "Lnet/minecraft/world/entity/player/Player;stopSleepInBed(ZZZ)V",
+    //#endif
     //$$                 ordinal = 0
     //$$         )
     //$$ )
+    //#if MC > 11404
     //$$ void redirectWakeUp(Player player, boolean updateSleepTimer, boolean updateSleepingPlayers) {
+    //#else
+    //$$ void redirectWakeUp(Player player, boolean updateSleepTimer, boolean updateSleepingPlayers, boolean setSpawnPoint) {
+    //#endif
     //$$     if (!PluslsCarpetAdditionSettings.sleepingDuringTheDay) {
+    //#if MC > 11404
     //$$         player.stopSleepInBed(updateSleepTimer, updateSleepingPlayers);
+    //#else
+    //$$         player.stopSleepInBed(updateSleepTimer, updateSleepingPlayers, setSpawnPoint);
+    //#endif
     //$$     }
     //$$ }
     //$$
