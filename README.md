@@ -8,6 +8,9 @@
 [![Github Release Downloads](https://img.shields.io/github/downloads/plusls/plusls-carpet-addition/total?label=Github%20Release%20Downloads&style=flat-square)](https://github.com/plusls/plusls-carpet-addition/releases)
 
 ## The project will be maintained in this repository until plusls back.
+
+English | [中文](./README_ZH_CN.md)
+
 This is a [Carpet mod](https://github.com/gnembon/fabric-carpet) extension mod, a collection of carpet mod style useful tools and interesting features.
 
 ## Dependencies

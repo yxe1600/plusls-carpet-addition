@@ -8,6 +8,9 @@
 [![Github Release Downloads](https://img.shields.io/github/downloads/plusls/plusls-carpet-addition/total?label=Github%20Release%20Downloads&style=flat-square)](https://github.com/plusls/plusls-carpet-addition/releases)
 
 ## 在 plusls 回归前，项目将在此仓库维护。
+
+[English](./README.md) | 中文
+
 这是一个 [Carpet mod](https://github.com/gnembon/fabric-carpet) (fabric-carpet) 的扩展 mod，包含了不少~~NotVanilla的~~有意思的功能以及特性。
 
 ## 依赖
@@ -287,4 +290,4 @@ EVERYONE：所有人的数据都可以被同步。
 
 ## 许可
 
-此项目在 LGPLv3许可证 下可用。 从中学习，并将其融入到您自己的项目中。
+此项目在 CC0-1.0许可证 下可用。 从中学习，并将其融入到您自己的项目中。
