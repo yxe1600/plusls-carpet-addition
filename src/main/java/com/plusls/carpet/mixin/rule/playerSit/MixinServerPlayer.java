@@ -13,12 +13,25 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+//#if MC > 11802 && MC < 11903
+//$$ import net.minecraft.world.entity.player.ProfilePublicKey;
+//$$ import org.jetbrains.annotations.Nullable;
+//#endif
+
 @Mixin(ServerPlayer.class)
 public abstract class MixinServerPlayer extends Player {
-    //#if MC > 11502
-    public MixinServerPlayer(Level world, BlockPos pos, float yaw, GameProfile gameProfile) {
-        super(world, pos, yaw, gameProfile);
+    //#if MC > 11902
+    public MixinServerPlayer(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
+        super(level, blockPos, f, gameProfile);
     }
+    //#elseif MC > 11802
+    //$$ public MixinServerPlayer(Level level, BlockPos blockPos, float f, GameProfile gameProfile, @Nullable ProfilePublicKey profilePublicKey) {
+    //$$     super(level, blockPos, f, gameProfile, profilePublicKey);
+    //$$ }
+    //#elseif MC > 11502
+    //$$ public MixinServerPlayer(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
+    //$$     super(level, blockPos, f, gameProfile);
+    //$$ }
     //#else
     //$$ public MixinServerPlayer(Level level, GameProfile gameProfile) {
     //$$     super(level, gameProfile);
@@ -62,7 +75,7 @@ public abstract class MixinServerPlayer extends Player {
             // 同步潜行状态到客户端
             // 如果不同步的话客户端会认为仍在潜行，从而碰撞箱的高度会计算错误
             if (pca$sneakTimes == 0 && this.connection != null) {
-                //#if MC > 11802
+                //#if MC > 11902
                 this.connection.send(new ClientboundSetEntityDataPacket(this.getId(), this.getEntityData().getNonDefaultValues()));
                 //#else
                 //$$ this.connection.send(new ClientboundSetEntityDataPacket(this.getId(), this.getEntityData(), true));
