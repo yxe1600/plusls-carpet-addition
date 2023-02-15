@@ -46,8 +46,16 @@ public abstract class MixinPotionItem extends Item {
     //$$ }
     //#endif
 
+    //#if MC <= 11802
+    //$$ @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    //#endif
     @Inject(
+            //#if MC > 11802
             method = "useOn",
+            //#else
+            //$$ method = {"useOn" ,"method_7884"},
+            //$$ remap = false,
+            //#endif
             at = @At(
                     value = "HEAD"
             ),

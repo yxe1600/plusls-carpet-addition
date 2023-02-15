@@ -32,7 +32,7 @@ public abstract class MixinDispenserBlockEntity extends RandomizableContainerBlo
         super.setChanged();
     }
 
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference", "target"})
     @Inject(
             method = "setChanged()V",
             at = @At(

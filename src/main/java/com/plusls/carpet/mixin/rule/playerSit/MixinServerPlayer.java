@@ -53,7 +53,7 @@ public abstract class MixinServerPlayer extends Player {
         super.setShiftKeyDown(sneaking);
     }
 
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference", "target"})
     @Inject(
             method = "setShiftKeyDown(Z)V",
             at = @At(

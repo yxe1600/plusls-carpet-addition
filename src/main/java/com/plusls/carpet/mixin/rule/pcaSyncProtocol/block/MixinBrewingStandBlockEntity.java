@@ -33,7 +33,7 @@ public abstract class MixinBrewingStandBlockEntity extends BaseContainerBlockEnt
         super.setChanged();
     }
 
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference", "target"})
     @Inject(
             method = "setChanged()V",
             at = @At(

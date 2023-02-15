@@ -38,15 +38,16 @@ public abstract class MixinAbstractVillager extends AgeableMob implements Contai
 
     @Override
     @Intrinsic
-    public void containerChanged(Container inventory) {
+    public void containerChanged(Container container) {
     }
 
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference", "target"})
     @Inject(
-            method = "containerChanged(Lnet/minecraft/world/Container;)V",
+            method = {"containerChanged(Lnet/minecraft/world/Container;)V", "method_5453"},
             at = @At(
-                    value = "RETURN"
-            )
+                    value = "HEAD"
+            ),
+            remap = false
     )
     public void postContainerChanged(Container inventory, CallbackInfo ci) {
         if (PluslsCarpetAdditionSettings.pcaSyncProtocol && PcaSyncProtocol.syncEntityToClient(this)) {

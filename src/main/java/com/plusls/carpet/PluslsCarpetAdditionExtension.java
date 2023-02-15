@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import top.hendrixshen.magiclib.api.rule.CarpetExtensionCompatApi;
 import top.hendrixshen.magiclib.api.rule.WrapperSettingManager;
+import top.hendrixshen.magiclib.tool.doc.CarpetDocumentGenerator;
 import top.hendrixshen.magiclib.util.MiscUtil;
 
 @SuppressWarnings("removal")
@@ -57,6 +58,11 @@ public class PluslsCarpetAdditionExtension implements CarpetExtensionCompatApi {
     @Override
     public void onServerLoaded(MinecraftServer server) {
         PluslsCarpetAdditionExtension.server = server;
+        CarpetDocumentGenerator doc = new CarpetDocumentGenerator(this.getSettingsManagerCompat().getIdentifier());
+        doc.setCurrentLanguageCode("en_us");
+        doc.genFile();
+        doc.setCurrentLanguageCode("zh_cn");
+        doc.genFile();
     }
 
     @Override
