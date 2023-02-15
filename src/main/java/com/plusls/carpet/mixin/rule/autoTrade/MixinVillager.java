@@ -28,6 +28,7 @@ public abstract class MixinVillager extends AbstractVillager implements MyVillag
         super(entityType, world);
     }
 
+    @Override
     public void pca$tradeWithoutPlayer(@NotNull MerchantOffer offer) {
         this.villagerXp += offer.getXp();
         if (this.shouldIncreaseLevel()) {

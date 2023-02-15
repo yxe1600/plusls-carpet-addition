@@ -19,13 +19,14 @@ import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
-
-import java.util.Objects;
-
-//#if MC > 11802
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Objects;
+
+//#if MC <= 11802
+//$$ import org.spongepowered.asm.mixin.Intrinsic;
 //#endif
 //#if MC <= 11701
 //$$ import net.minecraft.nbt.CompoundTag;
@@ -37,7 +38,14 @@ public abstract class MixinPotionItem extends Item {
         super(settings);
     }
 
-    //#if MC > 11802
+    //#if MC <= 11802
+    //$$ @Override
+    //$$ @Intrinsic
+    //$$ public @NotNull InteractionResult useOn(UseOnContext useOnContext) {
+    //$$     return super.useOn(useOnContext);
+    //$$ }
+    //#endif
+
     @Inject(
             method = "useOn",
             at = @At(
@@ -45,22 +53,14 @@ public abstract class MixinPotionItem extends Item {
             ),
             cancellable = true
     )
-    public void useOnBlock(@NotNull UseOnContext useOnContext, CallbackInfoReturnable<InteractionResult> cir) {
-    //#else
-    //$$ @Override
-    //$$ public @NotNull InteractionResult useOn(UseOnContext useOnContext) {
-    //#endif
+    public void preUseOn(@NotNull UseOnContext useOnContext, CallbackInfoReturnable<InteractionResult> cir) {
         ItemStack itemStack = useOnContext.getItemInHand();
         Player player = useOnContext.getPlayer();
         if (!PluslsCarpetAdditionSettings.useDyeOnShulkerBox ||
                 player == null ||
                 itemStack.getItem() != Items.POTION ||
                 PotionUtils.getPotion(itemStack) != Potions.WATER) {
-            //#if MC > 11802
             return;
-            //#else
-            //$$ return InteractionResult.PASS;
-            //#endif
         }
         Level level = useOnContext.getLevel();
         BlockPos pos = useOnContext.getClickedPos();
@@ -92,14 +92,9 @@ public abstract class MixinPotionItem extends Item {
             }
             //#if MC > 11802
             cir.setReturnValue(InteractionResult.sidedSuccess(level.isClientSide));
-            //#elseif MC > 11502
-            //$$ return InteractionResult.sidedSuccess(level.isClientSide);
             //#else
-            //$$ return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.PASS;
+            //$$ cir.setReturnValue(level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.PASS);
             //#endif
         }
-        //#if MC < 11900
-        //$$ return InteractionResult.PASS;
-        //#endif
     }
 }

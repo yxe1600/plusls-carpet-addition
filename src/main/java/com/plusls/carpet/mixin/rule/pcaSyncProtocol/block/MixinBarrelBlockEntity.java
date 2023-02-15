@@ -8,7 +8,11 @@ import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BarrelBlockEntity.class)
 public abstract class MixinBarrelBlockEntity extends RandomizableContainerBlockEntity {
@@ -23,9 +27,19 @@ public abstract class MixinBarrelBlockEntity extends RandomizableContainerBlockE
     //#endif
 
     @Override
+    @Intrinsic
     public void setChanged() {
         super.setChanged();
+    }
 
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @Inject(
+            method = "setChanged()V",
+            at = @At(
+                    value = "RETURN"
+            )
+    )
+    private void postSetChanged(CallbackInfo ci) {
         if (PluslsCarpetAdditionSettings.pcaSyncProtocol && PcaSyncProtocol.syncBlockEntityToClient(this)) {
             PluslsCarpetAdditionReference.getLogger().debug("update BarrelBlockEntity: {}", this.worldPosition);
         }
