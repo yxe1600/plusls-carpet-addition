@@ -55,7 +55,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         super.setChanged();
     }
 
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference", "target"})
     @Inject(
             method = "setChanged()V",
             at = @At(

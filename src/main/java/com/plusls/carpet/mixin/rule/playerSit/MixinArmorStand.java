@@ -45,7 +45,7 @@ public abstract class MixinArmorStand extends LivingEntity implements SitEntity 
         super.removePassenger(passenger);
     }
 
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference", "target"})
     @Inject(
             method = "removePassenger(Lnet/minecraft/world/entity/Entity;)V",
             at = @At(
