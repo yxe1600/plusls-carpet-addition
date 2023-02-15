@@ -8,6 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,12 +40,24 @@ public abstract class MixinArmorStand extends LivingEntity implements SitEntity 
     }
 
     @Override
+    @Intrinsic
     protected void removePassenger(Entity passenger) {
+        super.removePassenger(passenger);
+    }
+
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @Inject(
+            method = "removePassenger(Lnet/minecraft/world/entity/Entity;)V",
+            at = @At(
+                    value = "HEAD"
+            )
+
+    )
+    private void preRemovePassenger(Entity passenger, CallbackInfo ci) {
         if (this.pca$isSitEntity()) {
             this.setPos(this.getX(), this.getY() + 0.16, this.getZ());
             this.kill();
         }
-        super.removePassenger(passenger);
     }
 
     @Inject(

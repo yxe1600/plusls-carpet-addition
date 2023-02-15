@@ -9,10 +9,9 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.npc.AbstractVillager;
-import net.minecraft.world.entity.npc.Npc;
-import net.minecraft.world.item.trading.Merchant;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +37,18 @@ public abstract class MixinAbstractVillager extends AgeableMob implements Contai
     }
 
     @Override
+    @Intrinsic
     public void containerChanged(Container inventory) {
+    }
+
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @Inject(
+            method = "containerChanged(Lnet/minecraft/world/Container;)V",
+            at = @At(
+                    value = "RETURN"
+            )
+    )
+    public void postContainerChanged(Container inventory, CallbackInfo ci) {
         if (PluslsCarpetAdditionSettings.pcaSyncProtocol && PcaSyncProtocol.syncEntityToClient(this)) {
             PluslsCarpetAdditionReference.getLogger().debug("update villager inventory: onInventoryChanged.");
         }

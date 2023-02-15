@@ -13,8 +13,12 @@ import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 //#if MC <= 11701
 //$$ import net.minecraft.nbt.CompoundTag;
@@ -26,12 +30,26 @@ public abstract class MixinDyeItem extends Item {
         super(settings);
     }
 
-    @Shadow public abstract DyeColor getDyeColor();
+    @Shadow
+    public abstract DyeColor getDyeColor();
 
     @Override
-    public @NotNull InteractionResult useOn(UseOnContext context) {
+    @Intrinsic
+    public @NotNull InteractionResult useOn(UseOnContext useOnContext) {
+        return super.useOn(useOnContext);
+    }
+
+    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    @Inject(
+            method = "useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;",
+            at = @At(
+                    value = "HEAD"
+            ),
+            cancellable = true
+    )
+    private void preUseOn(UseOnContext context, CallbackInfoReturnable<InteractionResult> cir) {
         if (!PluslsCarpetAdditionSettings.useDyeOnShulkerBox) {
-            return InteractionResult.PASS;
+            return;
         }
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
@@ -58,11 +76,10 @@ public abstract class MixinDyeItem extends Item {
                 }
             }
             //#if MC > 11502
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            cir.setReturnValue(InteractionResult.sidedSuccess(level.isClientSide));
             //#else
-            //$$ return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.PASS;
+            //$$ cir.setReturnValue(level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.PASS);
             //#endif
         }
-        return InteractionResult.PASS;
     }
 }
