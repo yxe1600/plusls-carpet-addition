@@ -4,7 +4,6 @@ import com.plusls.carpet.PluslsCarpetAdditionReference;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
@@ -16,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ShulkerBoxBlockEntity.class)
-public abstract class MixinShulkerBoxBlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer {
+public abstract class MixinShulkerBoxBlockEntity extends RandomizableContainerBlockEntity {
     //#if MC > 11605
     protected MixinShulkerBoxBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);

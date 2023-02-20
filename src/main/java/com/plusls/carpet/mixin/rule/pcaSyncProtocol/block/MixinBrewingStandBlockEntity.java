@@ -4,7 +4,6 @@ import com.plusls.carpet.PluslsCarpetAdditionReference;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
@@ -16,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BrewingStandBlockEntity.class)
-public abstract class MixinBrewingStandBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer {
+public abstract class MixinBrewingStandBlockEntity extends BaseContainerBlockEntity {
     //#if MC > 11605
     protected MixinBrewingStandBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
