@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractHorse.class)
-public abstract class MixinAbstractHorse extends Animal implements ContainerListener {
+public abstract class MixinAbstractHorse extends Animal {
     protected MixinAbstractHorse(EntityType<? extends Animal> entityType, Level world) {
         super(entityType, world);
     }

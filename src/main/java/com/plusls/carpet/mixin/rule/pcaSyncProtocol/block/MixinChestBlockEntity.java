@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 // 由于陷阱箱继承自箱子，因此不用 mixin 陷阱箱
 // implements ChestAnimationProgress 会出错 不知道为啥
 @Mixin(ChestBlockEntity.class)
-public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEntity implements LidBlockEntity {
+public abstract class MixinChestBlockEntity extends RandomizableContainerBlockEntity {
     //#if MC > 11605
     protected MixinChestBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);

@@ -5,7 +5,6 @@ import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.network.PcaSyncProtocol;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.Hopper;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -23,7 +22,7 @@ import java.util.function.BooleanSupplier;
 //#endif
 
 @Mixin(HopperBlockEntity.class)
-public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockEntity implements Hopper {
+public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockEntity {
     //#if MC > 11605
     protected MixinHopperBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
