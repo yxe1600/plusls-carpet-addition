@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import top.hendrixshen.magiclib.compat.minecraft.nbt.TagCompatApi;
+import top.hendrixshen.magiclib.compat.minecraft.api.nbt.TagCompatApi;
 
 @Mixin(ArmorStand.class)
 public abstract class MixinArmorStand extends LivingEntity implements SitEntity {

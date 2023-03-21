@@ -4,7 +4,7 @@
   "version": "${mod_version}",
   "icon": "assets/${mod_id}/icon.png",
   "name": "${mod_name}",
-  "description": "${mod_name}",
+  "description": "${mod_description}",
   "authors": [
     {
       "name": "plusls",
@@ -30,12 +30,15 @@
   ],
   "accessWidener": "${mod_id}.accesswidener",
   "depends": {
-    "minecraft": "${minecraft_dependency}",
-    "magiclib-${minecraft_version_id}": ">=${magiclib_dependency}"
+    "carpet": "*",
+    "fabric": "*",
+    "magiclib-${minecraft_version_id}": ">=${magiclib_dependency}",
+    "minecraft": "${minecraft_dependency}"
   },
   "custom": {
+    "modmenu:parent": "${mod_id}",
     "modmenu": {
-      "parent": "carpet"
+      "parent": "${mod_id}"
     }
   }
 }

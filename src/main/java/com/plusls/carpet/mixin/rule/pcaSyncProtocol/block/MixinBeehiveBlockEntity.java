@@ -23,19 +23,15 @@ import net.minecraft.world.level.Level;
 import java.util.Objects;
 //#endif
 //#else
-//$$ import net.minecraft.server.MinecraftServer;
+//$$ import top.hendrixshen.magiclib.compat.preprocess.api.DummyClass;
 //#endif
-
 import org.spongepowered.asm.mixin.Mixin;
-import top.hendrixshen.magiclib.dependency.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.annotation.Dependency;
 
-@Dependencies(and = @Dependency(value = "minecraft", versionPredicate = ">1.14.4"))
 //#if MC > 11404
 @Mixin(BeehiveBlockEntity.class)
 public abstract class MixinBeehiveBlockEntity extends BlockEntity {
 //#else
-//$$ @Mixin(MinecraftServer.class)
+//$$ @Mixin(DummyClass.class)
 //$$ public class MixinBeehiveBlockEntity {
 //#endif
     //#if MC > 11404

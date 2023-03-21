@@ -2,8 +2,8 @@ package com.plusls.carpet.mixin.rule.sleepingDuringTheDay;
 
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
-import top.hendrixshen.magiclib.dependency.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.annotation.Dependency;
+import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
+import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
 //#if MC <= 11502
 //$$ import com.plusls.carpet.PluslsCarpetAdditionSettings;
 //$$ import net.minecraft.world.level.Level;

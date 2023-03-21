@@ -5,8 +5,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import top.hendrixshen.magiclib.dependency.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.annotation.Dependency;
+import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
+import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
 
 //#if MC > 11502
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
@@ -87,7 +87,11 @@ public abstract class MixinItemEntity extends Entity {
             return;
         }
         ServerLevel level = (ServerLevel) this.level;
-        if (source == DamageSource.LAVA && level.dimension() == Level.NETHER) {
+        //#if MC > 11903
+        if (source == level.damageSources().lava() && level.dimension() == Level.NETHER) {
+        //#else
+        //$$ if (source == DamageSource.LAVA && level.dimension() == Level.NETHER) {
+        //#endif
             ItemStack stack = this.getItem();
             if (!stack.isEmpty() && stack.getMaxDamage() - stack.getDamageValue() == 1) {
                 Item item = stack.getItem();
