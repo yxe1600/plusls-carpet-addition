@@ -186,6 +186,7 @@ publishing {
     publications {
         create("mavenJava", MavenPublication) {
             artifactId("${project.mod_id}-${project.minecraft_version.replace(".", "_")}")
+            version("${project.getMavenArtifactVersion()}")
             from(components.java)
         }
     }
