@@ -1,8 +1,8 @@
 package com.plusls.carpet;
 
-import top.hendrixshen.magiclib.api.rule.annotation.Rule;
-import top.hendrixshen.magiclib.dependency.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.annotation.Dependency;
+import top.hendrixshen.magiclib.carpet.api.annotation.Rule;
+import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
+import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
 
 public class PluslsCarpetAdditionSettings {
     public static final String CREATIVE = "creative";

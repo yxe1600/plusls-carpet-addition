@@ -2,8 +2,8 @@ package com.plusls.carpet.mixin.rule.emptyShulkerBoxStack;
 
 import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.Mixin;
-import top.hendrixshen.magiclib.dependency.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.annotation.Dependency;
+import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
+import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
 //#if MC > 11605
 import com.plusls.carpet.util.rule.emptyShulkerBoxStack.ShulkerBoxItemUtil;
 import net.minecraft.world.item.ItemStack;

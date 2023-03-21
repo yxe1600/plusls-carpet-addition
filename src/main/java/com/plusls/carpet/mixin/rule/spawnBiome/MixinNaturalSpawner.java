@@ -69,7 +69,7 @@ public class MixinNaturalSpawner {
     //#else
     //$$ private static Biome pca$getBiome(Biome biome) {
     //#endif
-        //#if MC > 11903
+        //#if MC > 11902
         return pca$lookup.getOrThrow(biome);
         //#elseif MC > 11701
         //$$ return Holder.direct(BuiltinRegistries.BIOME.get(biome));

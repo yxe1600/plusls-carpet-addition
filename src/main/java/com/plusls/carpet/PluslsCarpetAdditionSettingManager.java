@@ -1,8 +1,8 @@
 package com.plusls.carpet;
 
-import top.hendrixshen.magiclib.api.rule.WrapperSettingManager;
+import top.hendrixshen.magiclib.carpet.impl.WrappedSettingManager;
 
-public class PluslsCarpetAdditionSettingManager extends WrapperSettingManager {
+public class PluslsCarpetAdditionSettingManager extends WrappedSettingManager {
     public PluslsCarpetAdditionSettingManager(String version, String identifier, String fancyName) {
         super(version, identifier, fancyName);
     }

@@ -7,13 +7,13 @@ import com.plusls.carpet.util.rule.gravestone.GravestoneUtil;
 import com.plusls.carpet.util.rule.potionRecycle.PotionDispenserBehavior;
 import com.plusls.carpet.util.rule.sleepingDuringTheDay.SleepUtil;
 import net.fabricmc.api.ModInitializer;
-import top.hendrixshen.magiclib.api.rule.WrapperSettingManager;
+import top.hendrixshen.magiclib.carpet.impl.WrappedSettingManager;
 
 public class PluslsCarpetAddition implements ModInitializer {
     @Override
     public void onInitialize() {
-        WrapperSettingManager.register(PluslsCarpetAdditionReference.getModIdentifier(), PluslsCarpetAdditionExtension.getSettingsManager());
-        CarpetServer.manageExtension(new PluslsCarpetAdditionExtension());
+        WrappedSettingManager.register(PluslsCarpetAdditionReference.getModIdentifier(),
+                PluslsCarpetAdditionExtension.getSettingsManager(), new PluslsCarpetAdditionExtension());
         //#if MC > 11502
         GravestoneUtil.init();
         SleepUtil.init();

@@ -4,7 +4,7 @@
   "version": "${mod_version}",
   "icon": "assets/${mod_id}/icon.png",
   "name": "${mod_name}",
-  "description": "${mod_name}",
+  "description": "${mod_description}",
   "authors": [
     {
       "name": "plusls",
@@ -21,6 +21,7 @@
   "license": "CC0-1.0",
   "environment": "*",
   "depends": {
+    "carpet": "*",
     "magiclib": ">=${magiclib_dependency}"
   },
   "jars": ${sub_jars}

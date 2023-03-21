@@ -90,9 +90,9 @@ public class GravestoneUtil {
     // find pos to place gravestone
     public static BlockPos findGravePos(@NotNull ServerPlayer player) {
         //#if MC > 11502
-        BlockPos.MutableBlockPos playerPos = new BlockPos((player.position())).mutable();
+        BlockPos.MutableBlockPos playerPos = player.blockPositionCompat().mutable();
         //#else
-        //$$ BlockPos.MutableBlockPos playerPos = new BlockPos.MutableBlockPos(new BlockPos(player.position()));
+        //$$ BlockPos.MutableBlockPos playerPos = new BlockPos.MutableBlockPos(player.blockPositionCompat());
         //#endif
         playerPos.setY(clampY(player, playerPos.getY()));
         if (canPlaceGrave(player, playerPos)) {

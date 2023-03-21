@@ -55,7 +55,11 @@ public abstract class MixinServerPlayer extends Player {
 
     @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference", "target"})
     @Inject(
+            //#if MC > 11404
             method = "setShiftKeyDown(Z)V",
+            //#else
+            //$$ method = "setSneaking(Z)V",
+            //#endif
             at = @At(
                     value = "HEAD"
             ),

@@ -2,7 +2,7 @@ package com.plusls.carpet.util.rule.gravestone;
 
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
-import top.hendrixshen.magiclib.compat.minecraft.nbt.TagCompatApi;
+import top.hendrixshen.magiclib.compat.minecraft.api.nbt.TagCompatApi;
 
 //#if MC > 11502
 import net.minecraft.world.SimpleContainer;

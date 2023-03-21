@@ -7,25 +7,24 @@ apply(plugin: "com.replaymod.preprocess")
 int mcVersion = 1
 
 preprocess {
-    mcVersion = vars.get()["MC"]
-    tabIndentation = false
+    mcVersion = vars.get().get("MC")
+    tabIndentation.set(false)
 }
 
 repositories {
+    mavenLocal()
+
     maven {
+        name("CurseForge Maven")
         url("https://www.cursemaven.com")
     }
 
     maven {
-        url("https://api.modrinth.com/maven")
-    }
-
-    maven {
+        name("Nyan Maven")
         url("https://maven.hendrixshen.top")
     }
 
     mavenCentral()
-    mavenLocal()
 }
 
 dependencies {
@@ -38,17 +37,23 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:${project.lombok_version}")
 
     // Dependency
-    modImplementation("top.hendrixshen:magiclib-${project.minecraft_version.replace(".", "_")}:${project.magiclib_version}")
+    modImplementation("top.hendrixshen:magiclib-${project.minecraft_version.replace(".", "_")}:${project.magiclib_version}") {
+        exclude(group: "curse.maven", module: "malilib-303119")
+    }
 
     // Misc
     runtimeOnly(project(path: ":fabricWrapper"))
 }
 
-loom {
-    accessWidenerPath.set(file("${project.mod_id}.accesswidener"))
+archivesBaseName("${project.mod_archives_base_name}-${project.minecraft_version}")
+group(project.mod_maven_group)
+sourceCompatibility(JavaVersion.VERSION_1_8)
+targetCompatibility(JavaVersion.VERSION_1_8)
+version(project.parent.version)
 
+loom {
     interfaceInjection {
-        enableDependencyInterfaceInjection = true
+        enableDependencyInterfaceInjection.set(true)
     }
 
     runConfigs.configureEach {
@@ -56,37 +61,49 @@ loom {
         property("mixin.debug.export", "true")
     }
 
-    // We need large window.
-    runConfigs.client {
+    runConfigs.named("client") {
         programArgs([
                 "--width",
-                "1280",
+                "1920",
                 "--height",
-                "720",
+                "1080",
         ])
         runDir("run/client")
     }
 
-    runConfigs.server {
-        runDir("run/server")
+    runs {
+        mixinAuditClient {
+            inherit(client)
+            vmArgs("-Dmagiclib.mixin_audit=true")
+            ideConfigGenerated(false)
+            runDir("run/client")
+        }
+
+        mixinAuditServer {
+            inherit(server)
+            vmArgs("-Dmagiclib.mixin_audit=true")
+            ideConfigGenerated(false)
+            runDir("run/server")
+        }
     }
 
     // Setup client default settings.
     runClient {
         defaultCharacterEncoding("UTF-8")
+
         if (!new File("${projectDir}/run/client/options.txt").exists()) {
             new File("${projectDir}/run/client").mkdirs()
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("${projectDir}/run/client/options.txt"))
-            bufferedWriter.write("autoJump:false\n")
-            bufferedWriter.write("enableVsync:false\n")
-            bufferedWriter.write("forceUnicodeFont:true\n")
-            bufferedWriter.write("fov:1.0\n")
-            bufferedWriter.write("gamma:16.0\n")
-            bufferedWriter.write("guiScale:3\n")
-            bufferedWriter.write("lang:${Locale.getDefault().toString()}\n")
-            bufferedWriter.write("maxFps:260\n")
-            bufferedWriter.write("renderDistance:10\n")
-            bufferedWriter.write("soundCategory_master:0.0")
+            bufferedWriter.writeLine("autoJump:false")
+            bufferedWriter.writeLine("enableVsync:false")
+            bufferedWriter.writeLine("forceUnicodeFont:true")
+            bufferedWriter.writeLine("fov:1.0")
+            bufferedWriter.writeLine("gamma:16.0")
+            bufferedWriter.writeLine("guiScale:3")
+            bufferedWriter.writeLine("lang:${Locale.getDefault().toString()}")
+            bufferedWriter.writeLine("maxFps:260")
+            bufferedWriter.writeLine("renderDistance:10")
+            bufferedWriter.writeLine("soundCategory_master:0.0")
             bufferedWriter.close()
         }
     }
@@ -94,55 +111,67 @@ loom {
     // Setup server default settings.
     runServer {
         defaultCharacterEncoding("UTF-8")
+
         // Agree eula before server init.
         if (!new File("${projectDir}/run/server/eula.txt").exists()) {
             new File("${projectDir}/run/server").mkdirs()
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("${projectDir}/run/server/eula.txt"))
-            bufferedWriter.write("eula=true")
+            bufferedWriter.writeLine("eula=true")
             bufferedWriter.close()
         }
     }
+
+    accessWidenerPath.set(file("${project.mod_id}.accesswidener"))
 }
 
-remapJar {
-    remapperIsolation = true
-}
-
-setArchivesBaseName("${project.archives_base_name}-${project.minecraft_version}")
-setVersion(project.parent.version)
-setGroup(project.maven_group)
-setSourceCompatibility(JavaVersion.VERSION_1_8)
-setTargetCompatibility(JavaVersion.VERSION_1_8)
-
-processResources {
-    outputs.upToDateWhen { false }
-
-    from("${project.mod_id}.accesswidener")
-
-    inputs.property("version", version)
-    filesMatching("fabric.mod.json") {
-        expand(["mod_version"          : project.version,
-                "mod_id"               : project.mod_id,
-                "mod_name"             : project.mod_name,
-                "mod_homepage"         : project.mod_homepage,
-                "mod_sources"          : project.mod_sources,
-                "mod_license"          : project.mod_license,
-                "minecraft_dependency" : project.minecraft_dependency,
-                "minecraft_version_id" : project.minecraft_version.replace(".", "_"),
-                "minecraft_version"    : project.minecraft_version,
-                "magiclib_dependency"  : project.magiclib_dependency
-        ])
-    }
-}
-
-blossom {
-    replaceToken("\${mod_id}", project.mod_id)
-    replaceToken("\${mod_name}", project.mod_name)
-    replaceToken("\${minecraft_version_id}", project.minecraft_version.replace(".", "_"))
+tasks.findAll { it.name in [
+        "runClient", "runServer",
+        "runMixinAuditClient", "runMixinAuditServer",
+        "preprocessCode", "preprocessResources",
+        "preprocessTestCode", "preprocessTestResources"] }.forEach {
+    it.group("${project.mod_id}")
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.encoding = "UTF-8"
+    options.encoding("UTF-8")
+}
+
+remapJar {
+    remapperIsolation.set(true)
+}
+
+processResources {
+    from("${rootDir}/icon.png") {
+        into("assets/${project.mod_id}")
+    }
+
+    filesMatching("fabric.mod.json") {
+        filter { line ->
+            line.trim().startsWith("//") ? null : line
+        }
+
+        expand([
+                "magiclib_dependency" : project.magiclib_dependency,
+                "minecraft_dependency": project.minecraft_dependency,
+                "minecraft_version_id": project.minecraft_version.replace(".", "_"),
+                "minecraft_version"   : project.minecraft_version,
+                "mod_description"     : project.mod_description,
+                "mod_homepage"        : project.mod_homepage,
+                "mod_id"              : project.mod_id,
+                "mod_license"         : project.mod_license,
+                "mod_name"            : project.mod_name,
+                "mod_sources"         : project.mod_sources,
+                "mod_version"         : project.version
+        ])
+    }
+
+    from("${project.mod_id}.accesswidener")
+}
+
+blossom {
+    replaceToken("@MOD_IDENTIFIER@"            , project.mod_id)
+    replaceToken("@MOD_NAME@"                  , project.mod_name)
+    replaceToken("@MINECRAFT_VERSION_IDENTIFY@", project.minecraft_version.replace(".", "_"))
 }
 
 java {
@@ -150,12 +179,12 @@ java {
 }
 
 jar {
-    from("../../LICENSE")
+    from("${rootDir}/LICENSE")
 }
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        create("mavenJava", MavenPublication) {
             artifactId("${project.mod_id}-${project.minecraft_version.replace(".", "_")}")
             from(components.java)
         }
@@ -163,6 +192,7 @@ publishing {
 
     repositories {
         mavenLocal()
+
         maven {
             url("$rootDir/publish")
         }

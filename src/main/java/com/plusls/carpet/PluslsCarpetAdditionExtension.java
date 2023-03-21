@@ -9,8 +9,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
-import top.hendrixshen.magiclib.api.rule.CarpetExtensionCompatApi;
-import top.hendrixshen.magiclib.api.rule.WrapperSettingManager;
+import top.hendrixshen.magiclib.carpet.api.CarpetExtensionCompatApi;
+import top.hendrixshen.magiclib.carpet.impl.WrappedSettingManager;
 import top.hendrixshen.magiclib.util.MiscUtil;
 
 @SuppressWarnings("removal")
@@ -19,12 +19,12 @@ public class PluslsCarpetAdditionExtension implements CarpetExtensionCompatApi {
     private static final PluslsCarpetAdditionSettingManager settingsManager = new PluslsCarpetAdditionSettingManager(
             PluslsCarpetAdditionReference.getModVersion(),
             PluslsCarpetAdditionReference.getModIdentifier(),
-            PluslsCarpetAdditionReference.getCurrentModName());
+            PluslsCarpetAdditionReference.getModNameCurrent());
     @Getter
     private static MinecraftServer server;
 
     @Override
-    public WrapperSettingManager getSettingsManagerCompat() {
+    public WrappedSettingManager getSettingsManagerCompat() {
         return PluslsCarpetAdditionExtension.settingsManager;
     }
 
