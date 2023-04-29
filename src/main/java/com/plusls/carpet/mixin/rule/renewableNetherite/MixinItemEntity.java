@@ -83,10 +83,10 @@ public abstract class MixinItemEntity extends Entity {
             )
     )
     private void checkDiamondEquip(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        if (!PluslsCarpetAdditionSettings.renewableNetheriteEquip || this.level.isClientSide) {
+        if (!PluslsCarpetAdditionSettings.renewableNetheriteEquip || this.getLevelCompat().isClientSide) {
             return;
         }
-        ServerLevel level = (ServerLevel) this.level;
+        ServerLevel level = (ServerLevel) this.getLevelCompat();
         //#if MC > 11903
         if (source == level.damageSources().lava() && level.dimension() == Level.NETHER) {
         //#else

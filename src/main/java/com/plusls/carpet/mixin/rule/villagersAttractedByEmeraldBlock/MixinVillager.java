@@ -30,7 +30,7 @@ public abstract class MixinVillager extends AbstractVillager {
             )
     )
     private void init(EntityType<? extends Villager> entityType, Level world, VillagerType type, CallbackInfo ci) {
-        if (this.level.isClientSide()) {
+        if (this.getLevelCompat().isClientSide()) {
             return;
         }
         this.pca$villagersAttractedByEmeraldBlockGoal = new TemptGoal(this, 1.0D, Ingredient.of(Items.EMERALD_BLOCK), false);
@@ -43,7 +43,7 @@ public abstract class MixinVillager extends AbstractVillager {
             )
     )
     private void checkVillagersAttractedByEmeraldBlock(CallbackInfo ci) {
-        if (this.level.isClientSide()) {
+        if (this.getLevelCompat().isClientSide()) {
             return;
         }
         if (!this.pca$VillagersAttractedByEmeraldBlock && PluslsCarpetAdditionSettings.villagersAttractedByEmeraldBlock) {

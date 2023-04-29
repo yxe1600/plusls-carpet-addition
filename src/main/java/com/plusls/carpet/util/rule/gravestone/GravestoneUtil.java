@@ -45,7 +45,7 @@ public class GravestoneUtil {
     //#endif
 
     public static void deathHandle(@NotNull ServerPlayer player) {
-        Level world = player.level;
+        Level world = player.getLevelCompat();
         if (PluslsCarpetAdditionSettings.gravestone && !world.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
             for (InteractionHand hand : InteractionHand.values()) {
                 ItemStack itemStack = player.getItemInHand(hand);
@@ -115,7 +115,7 @@ public class GravestoneUtil {
 
         // search up
         gravePos.set(playerPos);
-        while (player.level.getBlockState(gravePos).getBlock() == Blocks.BEDROCK) {
+        while (player.getLevelCompat().getBlockState(gravePos).getBlock() == Blocks.BEDROCK) {
             gravePos.setY(gravePos.getY() + 1);
         }
         return gravePos;
@@ -125,29 +125,29 @@ public class GravestoneUtil {
     public static int clampY(@NotNull ServerPlayer player, int y) {
         //don't spawn on nether ceiling, unless the player is already there.
         //#if MC > 11502
-        if (player.level.dimension() == Level.NETHER && y < NETHER_BEDROCK_MAX_Y) {
+        if (player.getLevelCompat().dimension() == Level.NETHER && y < NETHER_BEDROCK_MAX_Y) {
         //#else
         //$$ if (player.dimension == DimensionType.NETHER && y < NETHER_BEDROCK_MAX_Y) {
         //#endif
             //clamp to 1 -- don't spawn graves the layer right above the void, so players can actually recover their items.
-            return Mth.clamp(y, player.level.getMinBuildHeight() + 1, NETHER_BEDROCK_MAX_Y - 1);
+            return Mth.clamp(y, player.getLevelCompat().getMinBuildHeight() + 1, NETHER_BEDROCK_MAX_Y - 1);
         } else {
-            return Mth.clamp(y, player.level.getMinBuildHeight() + 1, player.level.getMaxBuildHeight() - 1);
+            return Mth.clamp(y, player.getLevelCompat().getMinBuildHeight() + 1, player.getLevelCompat().getMaxBuildHeight() - 1);
         }
     }
 
 
     public static boolean canPlaceGrave(@NotNull ServerPlayer player, BlockPos pos) {
 
-        BlockState state = player.level.getBlockState(pos);
-        if (pos.getY() <= player.level.getMinBuildHeight() + 1 || pos.getY() >= player.level.getMaxBuildHeight() - 1) {
+        BlockState state = player.getLevelCompat().getBlockState(pos);
+        if (pos.getY() <= player.getLevelCompat().getMinBuildHeight() + 1 || pos.getY() >= player.getLevelCompat().getMaxBuildHeight() - 1) {
             return false;
         } else if (state.isAir()) {
             return true;
         }
         // block can replace
         else return state.canBeReplaced(
-                    new DirectionalPlaceContext(player.level, pos, Direction.DOWN, ItemStack.EMPTY, Direction.UP));
+                    new DirectionalPlaceContext(player.getLevelCompat(), pos, Direction.DOWN, ItemStack.EMPTY, Direction.UP));
     }
 
     // players are blown up
@@ -155,10 +155,10 @@ public class GravestoneUtil {
     public static BlockPos drop(@NotNull ServerPlayer player, BlockPos pos) {
         BlockPos.MutableBlockPos searchPos = new BlockPos.MutableBlockPos().set(pos);
         int i = 0;
-        for (int y = pos.getY() - 1; y > player.level.getMinBuildHeight() + 1 && i < 10; y--) {
+        for (int y = pos.getY() - 1; y > player.getLevelCompat().getMinBuildHeight() + 1 && i < 10; y--) {
             i++;
             searchPos.setY(clampY(player, y));
-            if (!player.level.getBlockState(searchPos).isAir()) {
+            if (!player.getLevelCompat().getBlockState(searchPos).isAir()) {
                 searchPos.setY(clampY(player, y + 1));
                 return searchPos;
             }

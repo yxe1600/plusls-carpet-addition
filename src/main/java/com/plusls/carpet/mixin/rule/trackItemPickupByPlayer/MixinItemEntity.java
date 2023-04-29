@@ -41,7 +41,7 @@ public abstract class MixinItemEntity extends Entity {
             cancellable = true
     )
     private void prevTick(CallbackInfo ci) {
-        if (!this.level.isClientSide() && PluslsCarpetAdditionSettings.trackItemPickupByPlayer && pca$pickuped) {
+        if (!this.getLevelCompat().isClientSide() && PluslsCarpetAdditionSettings.trackItemPickupByPlayer && pca$pickuped) {
             ci.cancel();
         }
     }
@@ -56,7 +56,7 @@ public abstract class MixinItemEntity extends Entity {
             cancellable = true
     )
     private void checkPickup(Player player, CallbackInfo ci) {
-        if (!this.level.isClientSide() && PluslsCarpetAdditionSettings.trackItemPickupByPlayer && PluslsCarpetAdditionExtension.getServer() != null) {
+        if (!this.getLevelCompat().isClientSide() && PluslsCarpetAdditionSettings.trackItemPickupByPlayer && PluslsCarpetAdditionExtension.getServer() != null) {
             if (pca$trackItemPickupByPlayerCooldown == 0) {
                 MessageUtil.sendServerMessage(PluslsCarpetAdditionExtension.getServer(),
                         ComponentCompatApi.literal(StringUtil.tr("pca.message.pickup", player.getName().getString(),
@@ -72,5 +72,4 @@ public abstract class MixinItemEntity extends Entity {
             ci.cancel();
         }
     }
-
 }
