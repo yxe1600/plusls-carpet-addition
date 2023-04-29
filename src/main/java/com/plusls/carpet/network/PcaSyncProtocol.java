@@ -180,7 +180,7 @@ public class PcaSyncProtocol {
             return;
         }
         BlockPos pos = buf.readBlockPos();
-        ServerLevel world = player.getLevel();
+        ServerLevel world = (ServerLevel) player.getLevelCompat();
         BlockState blockState = world.getBlockState(pos);
         clearPlayerWatchData(player);
         PluslsCarpetAdditionReference.getLogger().debug("{} watch blockpos {}: {}", player.getName().getString(), pos, blockState);
@@ -239,7 +239,7 @@ public class PcaSyncProtocol {
             return;
         }
         int entityId = buf.readInt();
-        ServerLevel world = player.getLevel();
+        ServerLevel world = (ServerLevel) player.getLevelCompat();
         Entity entity = world.getEntity(entityId);
         if (entity == null) {
             PluslsCarpetAdditionReference.getLogger().debug("Can't find entity {}.", entityId);

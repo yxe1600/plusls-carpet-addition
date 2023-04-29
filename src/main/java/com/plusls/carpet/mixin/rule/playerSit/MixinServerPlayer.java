@@ -79,9 +79,9 @@ public abstract class MixinServerPlayer extends Player {
             if (this.isOnGround() && nowTime - this.pca$lastSneakTime < 200) {
                 this.pca$sneakTimes += 1;
                 if (this.pca$sneakTimes == 3) {
-                    ArmorStand armorStandEntity = new ArmorStand(level, this.getX(), this.getY() - 0.16, this.getZ());
+                    ArmorStand armorStandEntity = new ArmorStand(this.getLevelCompat(), this.getX(), this.getY() - 0.16, this.getZ());
                     ((SitEntity) armorStandEntity).pca$setSitEntity(true);
-                    level.addFreshEntity(armorStandEntity);
+                    this.getLevelCompat().addFreshEntity(armorStandEntity);
                     this.setShiftKeyDown(false);
                     this.startRiding(armorStandEntity);
                     this.pca$sneakTimes = 0;

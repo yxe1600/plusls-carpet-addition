@@ -26,13 +26,13 @@ public abstract class MixinSpectralArrow extends AbstractArrow {
             )
     )
     private void forceRestock(LivingEntity target, CallbackInfo ci) {
-        if (PluslsCarpetAdditionSettings.forceRestock && !target.level.isClientSide && target instanceof AbstractVillager) {
+        if (PluslsCarpetAdditionSettings.forceRestock && !target.getLevelCompat().isClientSide && target instanceof AbstractVillager) {
             AbstractVillager villager = (AbstractVillager) target;
             for (MerchantOffer tradeOffer : villager.getOffers()) {
                 tradeOffer.resetUses();
             }
             // make villager happy ~
-            level.broadcastEntityEvent(villager, (byte) 14);
+            this.getLevelCompat().broadcastEntityEvent(villager, (byte) 14);
         }
     }
 }

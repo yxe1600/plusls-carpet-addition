@@ -25,7 +25,7 @@ public abstract class MixinArmorStand extends LivingEntity {
             )
     )
     private boolean redirectIsSourceCreativePlayer(DamageSource instance) {
-        if (!this.level.isClientSide() && PluslsCarpetAdditionSettings.creativePlayerNoDirectKillArmorStand) {
+        if (!this.getLevelCompat().isClientSide() && PluslsCarpetAdditionSettings.creativePlayerNoDirectKillArmorStand) {
             return false;
         }
         return instance.isCreativePlayer();

@@ -30,7 +30,7 @@ public abstract class MixinAbstractVillager extends AgeableMob implements Contai
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     private void addInventoryListener(EntityType<? extends AbstractVillager> entityType, Level world, CallbackInfo info) {
-        if (this.level.isClientSide()) {
+        if (this.getLevelCompat().isClientSide()) {
             return;
         }
         this.inventory.addListener(this);
