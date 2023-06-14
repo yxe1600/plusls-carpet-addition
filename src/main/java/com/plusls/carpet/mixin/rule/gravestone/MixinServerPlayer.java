@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
 import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
 //#if MC > 11502
-//$$ import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos;
 //#else
 //$$ import com.plusls.carpet.util.rule.gravestone.GravestoneUtil;
 //$$ import net.minecraft.world.damagesource.DamageSource;

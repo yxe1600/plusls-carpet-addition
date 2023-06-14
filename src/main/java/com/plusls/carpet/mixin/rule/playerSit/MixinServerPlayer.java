@@ -76,7 +76,7 @@ public abstract class MixinServerPlayer extends Player {
                 ci.cancel();
             }
             super.setShiftKeyDown(true);
-            if (this.isOnGround() && nowTime - this.pca$lastSneakTime < 200) {
+            if (this.onGround() && nowTime - this.pca$lastSneakTime < 200) {
                 this.pca$sneakTimes += 1;
                 if (this.pca$sneakTimes == 3) {
                     ArmorStand armorStandEntity = new ArmorStand(this.getLevelCompat(), this.getX(), this.getY() - 0.16, this.getZ());
