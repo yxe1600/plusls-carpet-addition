@@ -9,7 +9,11 @@
 
 English | [中文](./README_ZH_CN.md)
 
+❗Before reporting a problem, be sure to try the latest [beta version](https://github.com/plusls/plusls-carpet-addition/actions) to check if the problem still exists.
+
 This is a [Carpet mod](https://github.com/gnembon/fabric-carpet) extension mod, a collection of carpet mod style useful tools and interesting features.
+
+Operation command: `/pca`
 
 ## Dependencies
 
@@ -264,7 +268,7 @@ set xaero world name to sync word id to xaerominimap, "#none" is disable.
 
 ### Support
 
-Current main development for Minecraft version: 1.19.3
+Current main development for Minecraft version: 1.20
 
 And use `preprocess` to be compatible with all versions.
 
@@ -277,6 +281,8 @@ And use `preprocess` to be compatible with all versions.
 - Minecraft 1.18.2
 - Minecraft 1.19.2
 - Minecraft 1.19.3
+- Minecraft 1.19.4
+- Minecraft 1.20
 
 ### Mappings
 

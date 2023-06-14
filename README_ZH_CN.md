@@ -9,7 +9,11 @@
 
 [English](./README.md) | 中文
 
+❗在报告问题前，请务必尝试最新[测试版](https://github.com/plusls/plusls-carpet-addition/actions)，检查问题是否依然存在。
+
 这是一个 [Carpet mod](https://github.com/gnembon/fabric-carpet) (fabric-carpet) 的扩展 mod，包含了不少~~NotVanilla的~~有意思的功能以及特性。
+
+管理命令: `/carpet-tctc-addition`
 
 ## 依赖
 
@@ -264,7 +268,7 @@ EVERYONE：所有人的数据都可以被同步。
 
 ### 支持
 
-当前主开发版本：1.19.3
+当前主开发版本：1.20
 
 并且使用 `预处理` 来兼容各版本。
 
@@ -277,6 +281,8 @@ EVERYONE：所有人的数据都可以被同步。
 - Minecraft 1.18.2
 - Minecraft 1.19.2
 - Minecraft 1.19.3
+- Minecraft 1.19.4
+- Minecraft 1.20
 
 ### 混淆映射表
 
