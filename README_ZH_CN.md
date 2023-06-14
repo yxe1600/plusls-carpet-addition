@@ -1,17 +1,16 @@
 # plusls carpet addition
 
-[![Issues](https://img.shields.io/github/issues/plusls/plusls-carpet-addition?style=flat-square)](https://github.com/plusls/plusls-carpet-addition/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/plusls/plusls-carpet-addition?style=flat-square)](https://github.com/plusls/plusls-carpet-addition/pulls)
-[![CI](https://img.shields.io/github/actions/workflow/status/plusls/plusls-carpet-addition/build.yml?label=Build&style=flat-square)](https://github.com/plusls/plusls-carpet-addition/actions/workflows/build.yml)
-[![Publish Release](https://img.shields.io/github/actions/workflow/status/plusls/plusls-carpet-addition/publish.yml?label=Publish%20Release&style=flat-square)](https://github.com/plusls/plusls-carpet-addition/actions/workflows/publish.yml)
-[![Release](https://img.shields.io/github/v/release/plusls/plusls-carpet-addition?include_prereleases&style=flat-square)](https://github.com/plusls/plusls-carpet-addition/releases)
-[![Github Release Downloads](https://img.shields.io/github/downloads/plusls/plusls-carpet-addition/total?label=Github%20Release%20Downloads&style=flat-square)](https://github.com/plusls/plusls-carpet-addition/releases)
+[![Issues](https://img.shields.io/github/issues/Nyan-Work/plusls-carpet-addition?style=flat-square)](https://github.com/Nyan-Work/plusls-carpet-addition/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/Nyan-Work/plusls-carpet-addition?style=flat-square)](https://github.com/Nyan-Work/plusls-carpet-addition/pulls)
+[![CI](https://img.shields.io/github/actions/workflow/status/Nyan-Work/plusls-carpet-addition/build.yml?label=Build&style=flat-square)](https://github.com/Nyan-Work/plusls-carpet-addition/actions/workflows/CI.yml)
+[![Release](https://img.shields.io/github/v/release/Nyan-Work/plusls-carpet-addition?include_prereleases&style=flat-square)](https://github.com/Nyan-Work/plusls-carpet-addition/releases)
+[![Github Release Downloads](https://img.shields.io/github/downloads/Nyan-Work/plusls-carpet-addition/total?label=Github%20Release%20Downloads&style=flat-square)](https://github.com/Nyan-Work/plusls-carpet-addition/releases)
 
 ## 在 plusls 回归前，项目将在此仓库维护。
 
 [English](./README.md) | 中文
 
-❗在报告问题前，请务必尝试最新[测试版](https://github.com/plusls/plusls-carpet-addition/actions)，检查问题是否依然存在。
+❗在报告问题前，请务必尝试最新[测试版](https://github.com/Nyan-Work/plusls-carpet-addition/releases)，检查问题是否依然存在。
 
 这是一个 [Carpet mod](https://github.com/gnembon/fabric-carpet) (fabric-carpet) 的扩展 mod，包含了不少~~NotVanilla的~~有意思的功能以及特性。
 
