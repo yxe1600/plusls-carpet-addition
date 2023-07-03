@@ -269,7 +269,7 @@ set xaero world name to sync word id to xaerominimap, "#none" is disable.
 
 ### Support
 
-Current main development for Minecraft version: 1.20
+Current main development for Minecraft version: 1.20.1
 
 And use `preprocess` to be compatible with all versions.
 
@@ -283,7 +283,7 @@ And use `preprocess` to be compatible with all versions.
 - Minecraft 1.19.2
 - Minecraft 1.19.3
 - Minecraft 1.19.4
-- Minecraft 1.20
+- Minecraft 1.20.1
 
 ### Mappings
 

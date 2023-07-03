@@ -14,7 +14,7 @@
 
 这是一个 [Carpet mod](https://github.com/gnembon/fabric-carpet) (fabric-carpet) 的扩展 mod，包含了不少~~NotVanilla的~~有意思的功能以及特性。
 
-管理命令: `/carpet-tctc-addition`
+管理命令: `/pca`
 
 ## 依赖
 
@@ -269,7 +269,7 @@ EVERYONE：所有人的数据都可以被同步。
 
 ### 支持
 
-当前主开发版本：1.20
+当前主开发版本：1.20.1
 
 并且使用 `预处理` 来兼容各版本。
 
@@ -283,7 +283,7 @@ EVERYONE：所有人的数据都可以被同步。
 - Minecraft 1.19.2
 - Minecraft 1.19.3
 - Minecraft 1.19.4
-- Minecraft 1.20
+- Minecraft 1.20.1
 
 ### 混淆映射表
 
