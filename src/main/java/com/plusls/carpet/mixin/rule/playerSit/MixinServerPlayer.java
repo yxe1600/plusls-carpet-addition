@@ -3,6 +3,7 @@ package com.plusls.carpet.mixin.rule.playerSit;
 import com.mojang.authlib.GameProfile;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.util.rule.playerSit.SitEntity;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -44,7 +46,9 @@ public abstract class MixinServerPlayer extends Player {
 
     @Shadow
     public ServerGamePacketListenerImpl connection;
+    @Unique
     private int pca$sneakTimes = 0;
+    @Unique
     private long pca$lastSneakTime = 0;
 
     @Override
@@ -65,43 +69,50 @@ public abstract class MixinServerPlayer extends Player {
             ),
             cancellable = true
     )
-    private void preSetShiftKeyDown(boolean sneaking, CallbackInfo ci) {
-        if (!PluslsCarpetAdditionSettings.playerSit || (sneaking && this.isShiftKeyDown())) {
+    private void customSetShiftKeyDownCheck(boolean sneaking, CallbackInfo ci) {
+        if (!PluslsCarpetAdditionSettings.playerSit) {
             return;
         }
 
         if (sneaking) {
-            long nowTime = System.currentTimeMillis();
-            if (nowTime - this.pca$lastSneakTime < 200 && this.pca$sneakTimes == 0) {
+            long nowTime = Util.getMillis();
+
+            // Every sneak interval must not be over 0.2s
+            if (nowTime - this.pca$lastSneakTime > 200) {
+                this.pca$sneakTimes = 0;
+            } else {
+                // Block input update for 0.2s after player sit
                 ci.cancel();
             }
-            super.setShiftKeyDown(true);
-            if (this.onGround() && nowTime - this.pca$lastSneakTime < 200) {
-                this.pca$sneakTimes += 1;
-                if (this.pca$sneakTimes == 3) {
-                    ArmorStand armorStandEntity = new ArmorStand(this.getLevelCompat(), this.getX(), this.getY() - 0.16, this.getZ());
-                    ((SitEntity) armorStandEntity).pca$setSitEntity(true);
-                    this.getLevelCompat().addFreshEntity(armorStandEntity);
-                    this.setShiftKeyDown(false);
-                    this.startRiding(armorStandEntity);
-                    this.pca$sneakTimes = 0;
-                }
-            } else {
-                this.pca$sneakTimes = 1;
+
+            if (this.onGround()) {
+                this.pca$sneakTimes++;
             }
+
             this.pca$lastSneakTime = nowTime;
-        } else {
-            super.setShiftKeyDown(false);
-            // 同步潜行状态到客户端
-            // 如果不同步的话客户端会认为仍在潜行，从而碰撞箱的高度会计算错误
-            if (this.pca$sneakTimes == 0 && this.connection != null) {
-                //#if MC > 11902
-                this.connection.send(new ClientboundSetEntityDataPacket(this.getId(), this.getEntityData().getNonDefaultValues()));
-                //#else
-                //$$ this.connection.send(new ClientboundSetEntityDataPacket(this.getId(), this.getEntityData(), true));
-                //#endif
+
+            if (this.pca$sneakTimes > 2) {
+                ArmorStand armorStandEntity = new ArmorStand(this.getLevelCompat(), this.getX(), this.getY() - 0.16, this.getZ());
+                ((SitEntity) armorStandEntity).pca$setSitEntity(true);
+                this.getLevelCompat().addFreshEntity(armorStandEntity);
+                this.setShiftKeyDown(false);
+
+                if (this.connection != null) {
+                    this.connection.send(new ClientboundSetEntityDataPacket(
+                            this.getId(),
+                            //#if MC > 11902
+                            this.getEntityData().getNonDefaultValues()
+                            //#else
+                            //$$ this.getEntityData(),
+                            //$$ true
+                            //#endif
+                    ));
+                }
+
+                this.startRiding(armorStandEntity);
+                this.pca$sneakTimes = 0;
+                ci.cancel();
             }
         }
-        ci.cancel();
     }
 }

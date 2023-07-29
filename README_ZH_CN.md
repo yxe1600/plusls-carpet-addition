@@ -18,9 +18,11 @@
 
 ## 依赖
 
-| 依赖       | 下载                                                                                                                                                                                 |
-|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| MagicLib | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/magiclib) &#124; [GitHub](https://github.com/Hendrix-Shen/MagicLib) &#124; [Modrinth](https://modrinth.com/mod/magiclib) |
+| 依赖         | 链接1                                                                 | 链接2                                                | 链接3                                             |
+|------------|---------------------------------------------------------------------|----------------------------------------------------|-------------------------------------------------|
+| Carpet     | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/carpet)   | [GitHub](https://github.com/gnembon/fabric-carpet) | [Modrinth](https://modrinth.com/mod/carpet)     |
+| Fabric API | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/fabric)   | [GitHub](https://github.com/FabricMC/fabric)       | [Modrinth](https://modrinth.com/mod/fabric-api) |
+| MagicLib   | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/magiclib) | [GitHub](https://github.com/Hendrix-Shen/MagicLib) | [Modrinth](https://modrinth.com/mod/magiclib)   |
 
 ## 规则列表
 ## 自动交易 (autoTrade)
