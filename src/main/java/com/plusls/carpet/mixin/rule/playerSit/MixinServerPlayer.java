@@ -6,18 +6,17 @@ import com.plusls.carpet.util.rule.playerSit.SitEntity;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import org.spongepowered.asm.mixin.Intrinsic;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import top.hendrixshen.magiclib.util.MessageUtil;
 
 //#if MC > 11802 && MC < 11903
 //$$ import net.minecraft.world.entity.player.ProfilePublicKey;
@@ -46,6 +45,7 @@ public abstract class MixinServerPlayer extends Player {
 
     @Shadow
     public ServerGamePacketListenerImpl connection;
+    @Shadow @Final public MinecraftServer server;
     @Unique
     private int pca$sneakTimes = 0;
     @Unique
@@ -70,7 +70,8 @@ public abstract class MixinServerPlayer extends Player {
             cancellable = true
     )
     private void customSetShiftKeyDownCheck(boolean sneaking, CallbackInfo ci) {
-        if (!PluslsCarpetAdditionSettings.playerSit) {
+        // Not handled when sneak state doesn't change
+        if (!PluslsCarpetAdditionSettings.playerSit || (sneaking && this.isShiftKeyDown())) {
             return;
         }
 
