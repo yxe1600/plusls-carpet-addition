@@ -11,6 +11,8 @@
 
 ❗在报告问题前，请务必尝试最新[测试版](https://github.com/plusls/plusls-carpet-addition/actions)，检查问题是否依然存在。
 
+📌如果你只想要 PCA同步协议 而对其他功能不感兴趣，我推荐你使用轻量化的 [pca-protocol](https://github.com/Fallen-Breath/pca-protocol).
+
 这是一个 [Carpet mod](https://github.com/gnembon/fabric-carpet) (fabric-carpet) 的扩展 mod，包含了不少~~NotVanilla的~~有意思的功能以及特性。
 
 管理命令: `/pca`

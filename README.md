@@ -11,6 +11,8 @@ English | [中文](./README_ZH_CN.md)
 
 ❗Before reporting a problem, be sure to try the latest [beta version](https://github.com/plusls/plusls-carpet-addition/actions) to check if the problem still exists.
 
+📌If you only want the PCA sync protocol and are not interested in other features, I recommend the lightweight [pca-protocol](https://github.com/Fallen-Breath/pca-protocol).
+
 This is a [Carpet mod](https://github.com/gnembon/fabric-carpet) extension mod, a collection of carpet mod style useful tools and interesting features.
 
 Operation command: `/pca`
