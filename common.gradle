@@ -39,8 +39,13 @@ repositories {
     }
 
     maven {
-        name("Nyan Maven")
-        url("https://maven.hendrixshen.top")
+        name("Masa Maven")
+        url("https://masa.dy.fi/maven")
+    }
+
+    maven {
+        name("JitPack")
+        url("https://www.jitpack.io")
     }
 
     mavenCentral()
