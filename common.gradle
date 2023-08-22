@@ -226,8 +226,8 @@ ImmutableList<Object> replaceTokenFile = ImmutableList.builder()
         .add("PluslsCarpetAdditionReference")
         .build()
 
-jar {
-    doFirst {
+tasks.classes {
+    doLast {
         File dir = file("build/classes/java")
 
         dir.eachFileRecurse {
