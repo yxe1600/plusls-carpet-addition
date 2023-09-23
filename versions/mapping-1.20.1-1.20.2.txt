@@ -1,0 +1,4 @@
+net.minecraft.core.BlockSource getEntity() net.minecraft.core.dispenser.BlockSource blockEntity()
+net.minecraft.core.BlockSource getLevel() net.minecraft.core.dispenser.BlockSource level()
+net.minecraft.core.BlockSource getPos() net.minecraft.core.dispenser.BlockSource pos()
+net.minecraft.core.BlockSource getBlockState() net.minecraft.core.dispenser.BlockSource state()

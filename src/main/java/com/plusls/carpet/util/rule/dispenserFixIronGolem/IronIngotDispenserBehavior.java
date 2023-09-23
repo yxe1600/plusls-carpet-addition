@@ -3,7 +3,6 @@ package com.plusls.carpet.util.rule.dispenserFixIronGolem;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.util.dispenser.MyFallibleItemDispenserBehavior;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,6 +13,12 @@ import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
+
+//#if MC > 12001
+//$$ import net.minecraft.core.dispenser.BlockSource;
+//#else
+import net.minecraft.core.BlockSource;
+//#endif
 
 public class IronIngotDispenserBehavior extends MyFallibleItemDispenserBehavior {
     public IronIngotDispenserBehavior(DispenseItemBehavior oldDispenserBehavior) {

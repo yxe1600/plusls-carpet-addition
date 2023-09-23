@@ -284,10 +284,11 @@ EVERYONE：所有人的数据都可以被同步。
 - Minecraft 1.16.5
 - Minecraft 1.17.1
 - Minecraft 1.18.2
-- Minecraft 1.19.2
-- Minecraft 1.19.3
+- Minecraft 1.19.2 (即将终止支持)
+- Minecraft 1.19.3 (即将终止支持)
 - Minecraft 1.19.4
-- Minecraft 1.20.1
+- Minecraft 1.20.1 (即将终止支持)
+- Minecraft 1.20.2
 
 ### 混淆映射表
 

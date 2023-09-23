@@ -27,7 +27,7 @@ preprocess {
     mc1192.link(mc1193, null)
     mc1193.link(mc1194, null)
     mc1194.link(mc1201, null)
-    mc1201.link(mc1202, null)
+    mc1201.link(mc1202, file("versions/mapping-1.20.1-1.20.2.txt"))
 }
 
 ext {

@@ -3,7 +3,6 @@ package com.plusls.carpet.mixin.rule.autoTrade;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.util.rule.autoTrade.MyVillagerEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSourceImpl;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
@@ -25,6 +24,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+
+//#if MC > 12001
+//$$ import net.minecraft.core.dispenser.BlockSource;
+//#else
+import net.minecraft.core.BlockSourceImpl;
+//#endif
 
 //#if MC > 11502
 import net.minecraft.server.level.ServerLevel;
@@ -67,11 +72,18 @@ public class MixinDispenserBlock {
     }
 
     @Inject(method = "dispenseFrom", at = @At(value = "HEAD"), cancellable = true)
-    //#if MC > 11502
-    private void autoTrade(ServerLevel level, BlockPos blockPos, CallbackInfo ci) {
-    //#else
-    //$$ private void autoTrade(Level level, BlockPos blockPos, CallbackInfo ci) {
-    //#endif
+    private void autoTrade(
+            //#if MC > 11502
+            ServerLevel level,
+            //#if MC > 11201
+            //$$ BlockState blockState,
+            //#endif
+            //#else
+            //$$ Level level,
+            //#endif
+            BlockPos blockPos,
+            CallbackInfo ci
+    ) {
         if (!PluslsCarpetAdditionSettings.autoTrade) {
             return;
         }
@@ -87,12 +99,12 @@ public class MixinDispenserBlock {
         BlockPos faceBlockPos = blockPos.relative(level.getBlockState(blockPos).getValue(DispenserBlock.FACING));
         List<AbstractVillager> villagerList = level.getEntitiesOfClass(AbstractVillager.class,
                 new AABB(faceBlockPos), Entity::isAlive);
-        if (villagerList.size() < 1) {
+        if (villagerList.isEmpty()) {
             return;
         }
         AbstractVillager merchantEntity = villagerList.get(0);
         MerchantOffers offerList = merchantEntity.getOffers();
-        if (offerList.size() == 0) {
+        if (offerList.isEmpty()) {
             return;
         }
 
@@ -106,11 +118,15 @@ public class MixinDispenserBlock {
         ItemStack firstDepleteItem = firstItemStack.copy();
         ItemStack secondDepleteItem = secondItemStack.copy();
 
-        BlockSourceImpl blockPointerImpl = new BlockSourceImpl(level, blockPos);
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (!(blockEntity instanceof DispenserBlockEntity)) {
             return;
         }
+        //#if MC > 12001
+        //$$ BlockSource blockPointer = new BlockSource(level, blockPos, blockState, (DispenserBlockEntity) blockEntity);
+        //#else
+        BlockSourceImpl blockPointer = new BlockSourceImpl(level, blockPos);
+        //#endif
         DispenserBlockEntity dispenserBlockEntity = (DispenserBlockEntity) blockEntity;
         boolean success = false;
         while (!offer.isOutOfStock()) {
@@ -125,7 +141,7 @@ public class MixinDispenserBlock {
                 pca$depleteItemInInventory(secondDepleteItem, dispenserBlockEntity);
                 offer.increaseUses();
                 ItemStack outputItemStack = offer.assemble();
-                pca$itemDispenserBehavior.dispense(blockPointerImpl, outputItemStack);
+                pca$itemDispenserBehavior.dispense(blockPointer, outputItemStack);
                 // make villager happy ~
                 level.broadcastEntityEvent(merchantEntity, (byte) 14);
                 if (merchantEntity instanceof MyVillagerEntity) {

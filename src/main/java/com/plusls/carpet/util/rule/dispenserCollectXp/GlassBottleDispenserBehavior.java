@@ -3,7 +3,6 @@ package com.plusls.carpet.util.rule.dispenserCollectXp;
 import com.plusls.carpet.PluslsCarpetAdditionSettings;
 import com.plusls.carpet.util.dispenser.MyFallibleItemDispenserBehavior;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.world.entity.Entity;
@@ -15,6 +14,12 @@ import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
+
+//#if MC > 12001
+//$$ import net.minecraft.core.dispenser.BlockSource;
+//#else
+import net.minecraft.core.BlockSource;
+//#endif
 
 public class GlassBottleDispenserBehavior extends MyFallibleItemDispenserBehavior {
     private final DefaultDispenseItemBehavior fallbackBehavior = new DefaultDispenseItemBehavior();
