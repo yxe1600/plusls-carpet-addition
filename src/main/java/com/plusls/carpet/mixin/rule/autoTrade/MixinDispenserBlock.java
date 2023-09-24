@@ -75,7 +75,7 @@ public class MixinDispenserBlock {
     private void autoTrade(
             //#if MC > 11502
             ServerLevel level,
-            //#if MC > 11201
+            //#if MC > 12001
             //$$ BlockState blockState,
             //#endif
             //#else
