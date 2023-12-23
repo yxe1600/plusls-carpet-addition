@@ -5,9 +5,9 @@ import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.world.item.ItemStack;
 
 //#if MC > 12001
-//$$ import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 //#else
-import net.minecraft.core.BlockSource;
+//$$ import net.minecraft.core.BlockSource;
 //#endif
 
 public class MyDispenserBehavior implements DispenseItemBehavior {

@@ -15,9 +15,9 @@ import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 //#if MC > 12001
-//$$ import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 //#else
-import net.minecraft.core.BlockSource;
+//$$ import net.minecraft.core.BlockSource;
 //#endif
 
 //#if MC > 11605
@@ -47,8 +47,8 @@ public class PotionDispenserBehavior extends MyFallibleItemDispenserBehavior {
         if (!PluslsCarpetAdditionSettings.potionRecycle) {
             return itemStack;
         }
-        BlockPos faceBlockPos = pointer.getPos().relative(pointer.getBlockState().getValue(DispenserBlock.FACING));
-        Level world = pointer.getLevel();
+        BlockPos faceBlockPos = pointer.pos().relative(pointer.state().getValue(DispenserBlock.FACING));
+        Level world = pointer.level();
         BlockState faceBlockState = world.getBlockState(faceBlockPos);
         //#if MC > 11605
         if (faceBlockState.getBlock() instanceof AbstractCauldronBlock) {

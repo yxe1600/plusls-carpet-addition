@@ -16,9 +16,9 @@ import net.minecraft.world.phys.AABB;
 import java.util.List;
 
 //#if MC > 12001
-//$$ import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 //#else
-import net.minecraft.core.BlockSource;
+//$$ import net.minecraft.core.BlockSource;
 //#endif
 
 public class GlassBottleDispenserBehavior extends MyFallibleItemDispenserBehavior {
@@ -37,7 +37,7 @@ public class GlassBottleDispenserBehavior extends MyFallibleItemDispenserBehavio
         oldItem.shrink(1);
         if (oldItem.isEmpty())
             return newItem.copy();
-        if (((DispenserBlockEntity) pointer.getEntity()).addItem(newItem.copy()) < 0)
+        if (((DispenserBlockEntity) pointer.blockEntity()).addItem(newItem.copy()) < 0)
             this.fallbackBehavior.dispense(pointer, newItem.copy());
         return oldItem;
     }
@@ -47,9 +47,9 @@ public class GlassBottleDispenserBehavior extends MyFallibleItemDispenserBehavio
         if (!PluslsCarpetAdditionSettings.dispenserCollectXp) {
             return itemStack;
         }
-        BlockPos faceBlockPos = pointer.getPos().relative(pointer.getBlockState().getValue(DispenserBlock.FACING));
+        BlockPos faceBlockPos = pointer.pos().relative(pointer.state().getValue(DispenserBlock.FACING));
 
-        List<ExperienceOrb> xpEntityList = pointer.getLevel().getEntitiesOfClass(ExperienceOrb.class,
+        List<ExperienceOrb> xpEntityList = pointer.level().getEntitiesOfClass(ExperienceOrb.class,
                 new AABB(faceBlockPos), Entity::isAlive);
 
         int currentXp = 0;

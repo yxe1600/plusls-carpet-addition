@@ -15,9 +15,9 @@ import net.minecraft.world.phys.AABB;
 import java.util.List;
 
 //#if MC > 12001
-//$$ import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 //#else
-import net.minecraft.core.BlockSource;
+//$$ import net.minecraft.core.BlockSource;
 //#endif
 
 public class IronIngotDispenserBehavior extends MyFallibleItemDispenserBehavior {
@@ -35,9 +35,9 @@ public class IronIngotDispenserBehavior extends MyFallibleItemDispenserBehavior 
         if (!PluslsCarpetAdditionSettings.dispenserFixIronGolem) {
             return itemStack;
         }
-        BlockPos faceBlockPos = pointer.getPos().relative(pointer.getBlockState().getValue(DispenserBlock.FACING));
+        BlockPos faceBlockPos = pointer.pos().relative(pointer.state().getValue(DispenserBlock.FACING));
 
-        List<IronGolem> ironGolemEntityList = pointer.getLevel().getEntitiesOfClass(IronGolem.class,
+        List<IronGolem> ironGolemEntityList = pointer.level().getEntitiesOfClass(IronGolem.class,
                 new AABB(faceBlockPos), LivingEntity::isAlive);
 
         for (IronGolem ironGolemEntity : ironGolemEntityList) {

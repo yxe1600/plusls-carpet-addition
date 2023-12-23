@@ -8,9 +8,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 
 //#if MC > 12001
-//$$ import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 //#else
-import net.minecraft.core.BlockSource;
+//$$ import net.minecraft.core.BlockSource;
 //#endif
 
 public abstract class MyFallibleItemDispenserBehavior extends MyDispenserBehavior {
@@ -28,20 +28,20 @@ public abstract class MyFallibleItemDispenserBehavior extends MyDispenserBehavio
             return super.dispense(blockPointer, itemStack);
         }
         this.playSound(blockPointer);
-        this.spawnParticles(blockPointer, blockPointer.getBlockState().getValue(DispenserBlock.FACING));
+        this.spawnParticles(blockPointer, blockPointer.state().getValue(DispenserBlock.FACING));
         return itemStack2;
     }
 
     public ItemStack dispenseSilently(BlockSource pointer, ItemStack stack) {
-        Direction direction = pointer.getBlockState().getValue(DispenserBlock.FACING);
+        Direction direction = pointer.state().getValue(DispenserBlock.FACING);
         Position position = DispenserBlock.getDispensePosition(pointer);
         ItemStack itemStack = stack.split(1);
-        DefaultDispenseItemBehavior.spawnItem(pointer.getLevel(), itemStack, 6, direction, position);
+        DefaultDispenseItemBehavior.spawnItem(pointer.level(), itemStack, 6, direction, position);
         return stack;
     }
 
     protected void spawnParticles(BlockSource pointer, Direction side) {
-        pointer.getLevel().levelEvent(2000, pointer.getPos(), side.get3DDataValue());
+        pointer.level().levelEvent(2000, pointer.pos(), side.get3DDataValue());
     }
 
     public boolean isSuccess() {
@@ -53,6 +53,6 @@ public abstract class MyFallibleItemDispenserBehavior extends MyDispenserBehavio
     }
 
     protected void playSound(BlockSource pointer) {
-        pointer.getLevel().levelEvent(this.isSuccess() ? 1000 : 1001, pointer.getPos(), 0);
+        pointer.level().levelEvent(this.isSuccess() ? 1000 : 1001, pointer.pos(), 0);
     }
 }

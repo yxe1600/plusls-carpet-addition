@@ -26,9 +26,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 //#if MC > 12001
-//$$ import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 //#else
-import net.minecraft.core.BlockSourceImpl;
+//$$ import net.minecraft.core.BlockSourceImpl;
 //#endif
 
 //#if MC > 11502
@@ -76,7 +76,7 @@ public class MixinDispenserBlock {
             //#if MC > 11502
             ServerLevel level,
             //#if MC > 12001
-            //$$ BlockState blockState,
+            BlockState blockState,
             //#endif
             //#else
             //$$ Level level,
@@ -123,9 +123,9 @@ public class MixinDispenserBlock {
             return;
         }
         //#if MC > 12001
-        //$$ BlockSource blockPointer = new BlockSource(level, blockPos, blockState, (DispenserBlockEntity) blockEntity);
+        BlockSource blockPointer = new BlockSource(level, blockPos, blockState, (DispenserBlockEntity) blockEntity);
         //#else
-        BlockSourceImpl blockPointer = new BlockSourceImpl(level, blockPos);
+        //$$ BlockSourceImpl blockPointer = new BlockSourceImpl(level, blockPos);
         //#endif
         DispenserBlockEntity dispenserBlockEntity = (DispenserBlockEntity) blockEntity;
         boolean success = false;
